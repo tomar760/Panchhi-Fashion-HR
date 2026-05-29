@@ -1,275 +1,185 @@
 /* ================================================
    GATEPASS.JS — Gate Pass Module
-   Columns: S.N, Date, Employee Name, 
+   Columns: S.N, Date, Employee Name,
    Department, Out Time, In Time, Purpose
    + Google Sheets Auto Sync
-   + Auto Save (every 30 seconds)
    ================================================ */
 
-const GatePass = {
+var GatePass = {
 
-  // ---- Google Sheets URL ----
-  // Apna Google Apps Script URL yahan daal do
   SHEET_URL: 'https://script.google.com/macros/s/AKfycbw-DmUEw4atM28jOeJh4G5lZEXI3lxRu4MGp_FdlHYIAHE6EWMmVFmxfJIX2W-_go2d/exec',
-  html() {
-    return `
-    <div class="section" id="section-gatepass">
-      <div class="page-header">
-        <div>
-          <div class="page-heading">🚪 Gate Pass</div>
-          <div class="page-heading-sub">
-            Employee entry/exit record karo
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <!-- Auto Save Indicator -->
-          <div class="auto-save-chip" id="autoSaveChip">
-            💾 Auto Save: ON
-          </div>
-          <button class="btn btn-success btn-sm"
-                  onclick="GatePass.exportExcel()">
-            📊 Excel
-          </button>
-          <button class="btn btn-danger btn-sm"
-                  onclick="GatePass.exportPDF()">
-            📄 PDF
-          </button>
-        </div>
-      </div>
 
-      <div class="grid-2">
+  html: function() {
+    return '<div class="section" id="section-gatepass">'
+      + '<div class="page-header">'
+      + '<div>'
+      + '<div class="page-heading">🚪 Gate Pass</div>'
+      + '<div class="page-heading-sub">Employee entry / exit record karo</div>'
+      + '</div>'
+      + '<div style="display:flex;gap:8px;align-items:center;">'
+      + '<div class="auto-save-chip" id="autoSaveChip">💾 Auto Save: ON</div>'
+      + '<button class="btn btn-success btn-sm" onclick="GatePass.exportExcel()">📊 Excel</button>'
+      + '<button class="btn btn-danger btn-sm" onclick="GatePass.exportPDF()">📄 PDF</button>'
+      + '</div>'
+      + '</div>'
 
-        <!-- ADD FORM -->
-        <div class="card">
-          <div class="card-title">
-            <div class="card-icon">➕</div>
-            Naya Gate Pass
-          </div>
+      + '<div class="grid-2">'
 
-          <!-- S.N Auto -->
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">S.N. (Auto)</label>
-              <input type="text" class="form-control" id="gpId"
-                     readonly
-                     style="color:var(--accent-gold);font-weight:700;">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Date *</label>
-              <input type="date" class="form-control" id="gpDate">
-            </div>
-          </div>
+      + '<div class="card">'
+      + '<div class="card-title"><div class="card-icon">➕</div>Naya Gate Pass</div>'
 
-          <!-- Employee Name -->
-          <div class="form-group">
-            <label class="form-label">Employee Name *</label>
-            <select class="form-control" id="gpEmployee"
-                    onchange="GatePass.onEmpChange()">
-              <option value="">-- Select karo --</option>
-            </select>
-          </div>
+      + '<div class="form-row">'
+      + '<div class="form-group">'
+      + '<label class="form-label">S.N. (Auto)</label>'
+      + '<input type="text" class="form-control" id="gpId" readonly style="color:var(--accent-gold);font-weight:700;">'
+      + '</div>'
+      + '<div class="form-group">'
+      + '<label class="form-label">Date *</label>'
+      + '<input type="date" class="form-control" id="gpDate">'
+      + '</div>'
+      + '</div>'
 
-          <!-- Department (Auto fill) -->
-          <div class="form-group">
-            <label class="form-label">Department (Auto)</label>
-            <input type="text" class="form-control" id="gpDept"
-                   readonly placeholder="Employee select karne par auto fill">
-          </div>
+      + '<div class="form-group">'
+      + '<label class="form-label">Employee Name *</label>'
+      + '<select class="form-control" id="gpEmployee" onchange="GatePass.onEmpChange()">'
+      + '<option value="">-- Select karo --</option>'
+      + '</select>'
+      + '</div>'
 
-          <!-- Out Time & In Time -->
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Out Time</label>
-              <input type="time" class="form-control" id="gpOutTime">
-            </div>
-            <div class="form-group">
-              <label class="form-label">In Time</label>
-              <input type="time" class="form-control" id="gpInTime">
-              <div class="form-hint">
-                Baad mein bhi fill kar sakte ho
-              </div>
-            </div>
-          </div>
+      + '<div class="form-group">'
+      + '<label class="form-label">Department (Auto)</label>'
+      + '<input type="text" class="form-control" id="gpDept" readonly placeholder="Employee select karne par auto fill">'
+      + '</div>'
 
-          <!-- Purpose -->
-          <div class="form-group">
-            <label class="form-label">Purpose *</label>
-            <input type="text" class="form-control" id="gpPurpose"
-                   placeholder="Kahan ja rahe ho / Kaam kya hai">
-          </div>
+      + '<div class="form-row">'
+      + '<div class="form-group">'
+      + '<label class="form-label">Out Time *</label>'
+      + '<input type="time" class="form-control" id="gpOutTime">'
+      + '</div>'
+      + '<div class="form-group">'
+      + '<label class="form-label">In Time</label>'
+      + '<input type="time" class="form-control" id="gpInTime">'
+      + '<div class="form-hint">Baad mein bhi fill kar sakte ho</div>'
+      + '</div>'
+      + '</div>'
 
-          <!-- Quick Purpose Buttons -->
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
-            <button class="btn btn-ghost btn-sm"
-                    onclick="GatePass.setPurpose('Personal Work')">
-              Personal Work
-            </button>
-            <button class="btn btn-ghost btn-sm"
-                    onclick="GatePass.setPurpose('Bank Work')">
-              Bank Work
-            </button>
-            <button class="btn btn-ghost btn-sm"
-                    onclick="GatePass.setPurpose('Site Visit')">
-              Site Visit
-            </button>
-            <button class="btn btn-ghost btn-sm"
-                    onclick="GatePass.setPurpose('Material Delivery')">
-              Material Delivery
-            </button>
-            <button class="btn btn-ghost btn-sm"
-                    onclick="GatePass.setPurpose('Official Work')">
-              Official Work
-            </button>
-          </div>
+      + '<div class="form-group">'
+      + '<label class="form-label">Purpose *</label>'
+      + '<input type="text" class="form-control" id="gpPurpose" placeholder="Kahan ja rahe ho / Kaam kya hai">'
+      + '</div>'
 
-          <button class="btn btn-primary btn-block"
-                  onclick="GatePass.add()">
-            ✅ Gate Pass Save Karo
-          </button>
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">'
+      + '<button class="btn btn-ghost btn-sm" onclick="GatePass.setPurpose(\'Personal Work\')">Personal Work</button>'
+      + '<button class="btn btn-ghost btn-sm" onclick="GatePass.setPurpose(\'Bank Work\')">Bank Work</button>'
+      + '<button class="btn btn-ghost btn-sm" onclick="GatePass.setPurpose(\'Site Visit\')">Site Visit</button>'
+      + '<button class="btn btn-ghost btn-sm" onclick="GatePass.setPurpose(\'Material Delivery\')">Material Delivery</button>'
+      + '<button class="btn btn-ghost btn-sm" onclick="GatePass.setPurpose(\'Official Work\')">Official Work</button>'
+      + '</div>'
 
-          <!-- Sync Status -->
-          <div class="sync-status mt-10" id="syncStatus">
-            <span id="syncIcon">☁️</span>
-            <span id="syncText">Google Sheets sync ready</span>
-          </div>
-        </div>
+      + '<div class="sync-status" id="gpSyncStatus">'
+      + '<span>☁️</span>'
+      + '<span id="gpSyncText">Google Sheets sync ready</span>'
+      + '</div>'
 
-        <!-- TODAY SUMMARY + QUICK TABLE -->
-        <div class="card">
-          <div class="card-title">
-            <div class="card-icon">📊</div>
-            Aaj ka Summary
-          </div>
+      + '<button class="btn btn-primary btn-block mt-10" onclick="GatePass.add()">✅ Gate Pass Save Karo</button>'
+      + '</div>'
 
-          <!-- Stats -->
-          <div class="salary-grid mb-15"
-               style="grid-template-columns:repeat(3,1fr);">
-            <div class="salary-box">
-              <div class="s-amt text-primary" id="gp-totalToday">0</div>
-              <div class="s-lbl">Aaj Total</div>
-            </div>
-            <div class="salary-box">
-              <div class="s-amt text-warning" id="gp-out">0</div>
-              <div class="s-lbl">Bahar Hain</div>
-            </div>
-            <div class="salary-box">
-              <div class="s-amt text-success" id="gp-returned">0</div>
-              <div class="s-lbl">Wapas Aa Gaye</div>
-            </div>
-          </div>
+      + '<div class="card">'
+      + '<div class="card-title"><div class="card-icon">📊</div>Aaj ka Summary</div>'
 
-          <!-- Still Outside Alert -->
-          <div id="stillOutside"></div>
+      + '<div class="salary-grid mb-15" style="grid-template-columns:repeat(3,1fr);">'
+      + '<div class="salary-box"><div class="s-amt text-primary" id="gp-totalToday">0</div><div class="s-lbl">Aaj Total</div></div>'
+      + '<div class="salary-box"><div class="s-amt text-warning" id="gp-out">0</div><div class="s-lbl">Bahar Hain</div></div>'
+      + '<div class="salary-box"><div class="s-amt text-success" id="gp-returned">0</div><div class="s-lbl">Wapas Aa Gaye</div></div>'
+      + '</div>'
 
-          <hr class="divider">
+      + '<div id="stillOutside"></div>'
 
-          <!-- Today's List -->
-          <div class="card-title"
-               style="border:none;padding:0;margin-bottom:10px;font-size:13px;">
-            <div class="card-icon">📋</div>
-            Aaj Ke Gate Pass
-          </div>
-          <div id="todayGPList"
-               style="max-height:300px;overflow-y:auto;">
-            <p class="text-muted text-center" style="padding:20px;">
-              Aaj koi gate pass nahi
-            </p>
-          </div>
-        </div>
+      + '<hr class="divider">'
+      + '<div style="font-size:13px;font-weight:600;margin-bottom:10px;">📋 Aaj Ke Gate Pass</div>'
+      + '<div id="todayGPList" style="max-height:300px;overflow-y:auto;">'
+      + '<p class="text-muted text-center" style="padding:20px;">Aaj koi gate pass nahi</p>'
+      + '</div>'
+      + '</div>'
 
-      </div><!-- /grid-2 -->
+      + '</div>'
 
-      <!-- ALL RECORDS TABLE -->
-      <div class="card mt-20">
-        <div class="card-title">
-          <div class="card-icon">📋</div>
-          Sab Gate Pass Records
-          <div class="card-actions">
-            <!-- Date Filter -->
-            <input type="date" class="form-control"
-                   id="gpFilterDate"
-                   style="width:150px;padding:5px 10px;font-size:12px;"
-                   oninput="GatePass._renderTable()">
-            <!-- Employee Filter -->
-            <select class="form-control"
-                    id="gpFilterEmp"
-                    style="width:160px;padding:5px 10px;font-size:12px;"
-                    onchange="GatePass._renderTable()">
-              <option value="">All Employees</option>
-            </select>
-          </div>
-        </div>
+      + '<div class="card mt-20">'
+      + '<div class="card-title">'
+      + '<div class="card-icon">📋</div>'
+      + 'Sab Gate Pass Records'
+      + '<div class="card-actions">'
+      + '<input type="date" class="form-control" id="gpFilterDate" style="width:150px;padding:5px 10px;font-size:12px;" oninput="GatePass._renderTable()">'
+      + '<select class="form-control" id="gpFilterEmp" style="width:160px;padding:5px 10px;font-size:12px;" onchange="GatePass._renderTable()">'
+      + '<option value="">All Employees</option>'
+      + '</select>'
+      + '</div>'
+      + '</div>'
 
-        <div class="table-wrap" style="max-height:400px;overflow-y:auto;">
-          <table class="data-table" id="gpMainTable">
-            <thead>
-              <tr>
-                <th>S.N.</th>
-                <th>Date</th>
-                <th>Employee Name</th>
-                <th>Department</th>
-                <th>Out Time</th>
-                <th>In Time</th>
-                <th>Purpose</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="gpTableBody">
-              <tr class="empty-row">
-                <td colspan="9">📭 Koi gate pass nahi</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      + '<div class="table-wrap" style="max-height:400px;overflow-y:auto;">'
+      + '<table class="data-table">'
+      + '<thead><tr>'
+      + '<th>S.N.</th>'
+      + '<th>Date</th>'
+      + '<th>Employee Name</th>'
+      + '<th>Department</th>'
+      + '<th>Out Time</th>'
+      + '<th>In Time</th>'
+      + '<th>Purpose</th>'
+      + '<th>Status</th>'
+      + '<th>Action</th>'
+      + '</tr></thead>'
+      + '<tbody id="gpTableBody">'
+      + '<tr class="empty-row"><td colspan="9">📭 Koi gate pass nahi</td></tr>'
+      + '</tbody>'
+      + '</table>'
+      + '</div>'
+      + '</div>'
 
-    </div><!-- /section -->
-    `;
+      + '</div>';
   },
 
-  // ---- Employee Change — Auto Fill Dept ----
-  onEmpChange() {
-    const id  = document.getElementById('gpEmployee')?.value;
-    const emp = DB.employees.find(e => e.id === id);
-    const el  = document.getElementById('gpDept');
+  // ---- Employee Change ----
+  onEmpChange: function() {
+    var id  = document.getElementById('gpEmployee') ? document.getElementById('gpEmployee').value : '';
+    var emp = DB.employees.find(function(e) { return e.id === id; });
+    var el  = document.getElementById('gpDept');
     if (el) el.value = emp ? (emp.dept || '') : '';
   },
 
-  // ---- Quick Purpose Fill ----
-  setPurpose(text) {
-    const el = document.getElementById('gpPurpose');
+  // ---- Quick Purpose ----
+  setPurpose: function(text) {
+    var el = document.getElementById('gpPurpose');
     if (el) el.value = text;
   },
 
   // ---- Add Gate Pass ----
-  add() {
-    const empId   = document.getElementById('gpEmployee')?.value;
-    const date    = document.getElementById('gpDate')?.value;
-    const outTime = document.getElementById('gpOutTime')?.value;
-    const inTime  = document.getElementById('gpInTime')?.value;
-    const purpose = document.getElementById('gpPurpose')?.value.trim();
-    const dept    = document.getElementById('gpDept')?.value;
-    const emp     = DB.employees.find(e => e.id === empId);
+  add: function() {
+    var empId   = document.getElementById('gpEmployee')  ? document.getElementById('gpEmployee').value   : '';
+    var date    = document.getElementById('gpDate')       ? document.getElementById('gpDate').value       : '';
+    var outTime = document.getElementById('gpOutTime')    ? document.getElementById('gpOutTime').value    : '';
+    var inTime  = document.getElementById('gpInTime')     ? document.getElementById('gpInTime').value     : '';
+    var purpose = document.getElementById('gpPurpose')    ? document.getElementById('gpPurpose').value.trim() : '';
+    var dept    = document.getElementById('gpDept')       ? document.getElementById('gpDept').value       : '';
+    var emp     = DB.employees.find(function(e) { return e.id === empId; });
 
-    // Validation
     if (!empId)   { Toast.error('Employee select karo!');  return; }
     if (!date)    { Toast.error('Date fill karo!');         return; }
     if (!outTime) { Toast.error('Out Time fill karo!');     return; }
     if (!purpose) { Toast.error('Purpose likhna zaruri!'); return; }
 
-    const pass = {
-      id:       'GP' + String(DB.gatePasses.length + 1).padStart(4, '0'),
-      date,
-      empId,
-      empName:  emp ? emp.name : 'Unknown',
-      dept:     dept || '',
-      outTime,
-      inTime:   inTime || '',
-      purpose,
+    var pass = {
+      id:         'GP' + String(DB.gatePasses.length + 1).padStart(4, '0'),
+      date:       date,
+      empId:      empId,
+      empName:    emp ? emp.name : 'Unknown',
+      dept:       dept || '',
+      outTime:    outTime,
+      inTime:     inTime || '',
+      purpose:    purpose,
       isReturned: !!(inTime),
-      addedOn:  new Date().toISOString(),
-      synced:   false
+      synced:     false,
+      addedOn:    new Date().toISOString()
     };
 
     DB.gatePasses.push(pass);
@@ -279,219 +189,177 @@ const GatePass = {
     this._clearForm();
     App.updateBadges();
 
-    // Sync to Google Sheets
     this._syncToSheets(pass);
 
-    Toast.success(
-      'Gate Pass Saved!',
-      `${pass.id} — ${emp ? emp.name : ''}`
-    );
+    Toast.success('Gate Pass Saved! ✅', pass.id + ' — ' + (emp ? emp.name : ''));
   },
 
-  // ---- Update In Time ----
-  updateInTime(id) {
-    const pass = DB.gatePasses.find(p => p.id === id);
+  // ---- Mark In Time ----
+  updateInTime: function(id) {
+    var pass = DB.gatePasses.find(function(p) { return p.id === id; });
     if (!pass) return;
 
-    const now = new Date();
-    const timeStr = now.toTimeString().slice(0, 5);
+    var now     = new Date();
+    var hours   = String(now.getHours()).padStart(2, '0');
+    var minutes = String(now.getMinutes()).padStart(2, '0');
+    var timeStr = hours + ':' + minutes;
 
     pass.inTime     = timeStr;
     pass.isReturned = true;
 
     DB.save();
     this.update();
-
-    // Update in Google Sheets too
     this._syncUpdateToSheets(pass);
 
-    Toast.success('In Time Updated!', `${pass.empName} — ${timeStr}`);
+    Toast.success('In Time Updated!', pass.empName + ' — ' + timeStr);
   },
 
   // ---- Delete ----
-  delete(id) {
+  delete: function(id) {
     if (!Utils.confirm('Gate pass delete karna chahte ho?')) return;
-    DB._data.gatePasses = DB.gatePasses.filter(p => p.id !== id);
+    DB._data.gatePasses = DB.gatePasses.filter(function(p) { return p.id !== id; });
     DB.save();
     this.update();
     Toast.warning('Gate pass deleted', '');
   },
 
   // ---- Render Table ----
-  _renderTable() {
-    const tbody     = document.getElementById('gpTableBody');
-    const filterEmp = document.getElementById('gpFilterEmp');
+  _renderTable: function() {
+    var tbody     = document.getElementById('gpTableBody');
+    var filterEmp = document.getElementById('gpFilterEmp');
     if (!tbody) return;
 
-    const dateFilter = document.getElementById('gpFilterDate')?.value || '';
-    const empFilter  = filterEmp?.value || '';
+    var dateFilter = document.getElementById('gpFilterDate') ? document.getElementById('gpFilterDate').value : '';
+    var empFilter  = filterEmp ? filterEmp.value : '';
 
-    // Update filter emp dropdown
     if (filterEmp) {
-      const cur = filterEmp.value;
-      filterEmp.innerHTML =
-        '<option value="">All Employees</option>' +
-        DB.employees.map(e =>
-          `<option value="${e.id}" ${e.id === cur ? 'selected' : ''}>
-            ${e.name}
-          </option>`
-        ).join('');
+      var cur = filterEmp.value;
+      var opts = '<option value="">All Employees</option>';
+      DB.employees.forEach(function(e) {
+        opts += '<option value="' + e.id + '"' + (e.id === cur ? ' selected' : '') + '>' + e.name + '</option>';
+      });
+      filterEmp.innerHTML = opts;
       filterEmp.value = cur;
     }
 
-    let list = [...DB.gatePasses].reverse();
+    var list = DB.gatePasses.slice().reverse();
 
-    if (dateFilter) list = list.filter(p => p.date === dateFilter);
-    if (empFilter)  list = list.filter(p => p.empId === empFilter);
+    if (dateFilter) {
+      list = list.filter(function(p) { return p.date === dateFilter; });
+    }
+    if (empFilter) {
+      list = list.filter(function(p) { return p.empId === empFilter; });
+    }
 
     if (!list.length) {
-      tbody.innerHTML = `
-        <tr class="empty-row">
-          <td colspan="9">📭 Koi gate pass nahi</td>
-        </tr>`;
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="9">📭 Koi gate pass nahi</td></tr>';
       return;
     }
 
-    tbody.innerHTML = list.map(p => `
-      <tr>
-        <td>
-          <span class="text-gold text-bold"
-                style="font-size:12px;">${p.id}</span>
-        </td>
-        <td style="font-size:12px;">${p.date}</td>
-        <td><div class="text-bold">${p.empName}</div></td>
-        <td class="text-sm text-muted">${p.dept || '—'}</td>
-        <td class="text-bold text-warning">${p.outTime || '—'}</td>
-        <td>
-          ${p.inTime
-            ? `<span class="text-success text-bold">${p.inTime}</span>`
-            : `<button class="btn btn-sm btn-info"
-                       onclick="GatePass.updateInTime('${p.id}')">
-                 ⏱️ Mark In
-               </button>`
-          }
-        </td>
-        <td style="font-size:12px;">${p.purpose}</td>
-        <td>
-          ${p.isReturned
-            ? '<span class="badge badge-success">✅ Returned</span>'
-            : '<span class="badge badge-warning">⏳ Outside</span>'
-          }
-        </td>
-        <td>
-          <button class="btn btn-sm btn-danger"
-                  onclick="GatePass.delete('${p.id}')">🗑️</button>
-        </td>
-      </tr>
-    `).join('');
+    var rows = '';
+    list.forEach(function(p) {
+      var inTimeHTML = p.inTime
+        ? '<span class="text-success text-bold">' + p.inTime + '</span>'
+        : '<button class="btn btn-sm btn-info" onclick="GatePass.updateInTime(\'' + p.id + '\')">⏱️ Mark In</button>';
+
+      var statusHTML = p.isReturned
+        ? '<span class="badge badge-success">✅ Returned</span>'
+        : '<span class="badge badge-warning">⏳ Outside</span>';
+
+      var syncIcon = p.synced ? '☁️✅' : '☁️⏳';
+
+      rows += '<tr>'
+        + '<td><span class="text-gold text-bold" style="font-size:12px;">' + p.id + '</span> <span style="font-size:10px;">' + syncIcon + '</span></td>'
+        + '<td style="font-size:12px;">' + p.date + '</td>'
+        + '<td><div class="text-bold">' + p.empName + '</div></td>'
+        + '<td class="text-sm text-muted">' + (p.dept || '—') + '</td>'
+        + '<td class="text-bold text-warning">' + (p.outTime || '—') + '</td>'
+        + '<td>' + inTimeHTML + '</td>'
+        + '<td style="font-size:12px;">' + p.purpose + '</td>'
+        + '<td>' + statusHTML + '</td>'
+        + '<td><button class="btn btn-sm btn-danger" onclick="GatePass.delete(\'' + p.id + '\')">🗑️</button></td>'
+        + '</tr>';
+    });
+
+    tbody.innerHTML = rows;
   },
 
   // ---- Today Summary ----
-  _updateTodaySummary() {
-    const today    = Utils.today();
-    const todayGPs = DB.gatePasses.filter(p => p.date === today);
-    const out      = todayGPs.filter(p => !p.isReturned);
-    const returned = todayGPs.filter(p => p.isReturned);
+  _updateTodaySummary: function() {
+    var today    = Utils.today();
+    var todayGPs = DB.gatePasses.filter(function(p) { return p.date === today; });
+    var out      = todayGPs.filter(function(p) { return !p.isReturned; });
+    var returned = todayGPs.filter(function(p) { return p.isReturned; });
 
-    const set = (id, val) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = val;
-    };
+    var totalEl    = document.getElementById('gp-totalToday');
+    var outEl      = document.getElementById('gp-out');
+    var returnedEl = document.getElementById('gp-returned');
 
-    set('gp-totalToday', todayGPs.length);
-    set('gp-out',        out.length);
-    set('gp-returned',   returned.length);
+    if (totalEl)    totalEl.textContent    = todayGPs.length;
+    if (outEl)      outEl.textContent      = out.length;
+    if (returnedEl) returnedEl.textContent = returned.length;
 
-    // Still Outside Alert
-    const outsideEl = document.getElementById('stillOutside');
+    var outsideEl = document.getElementById('stillOutside');
     if (outsideEl) {
       if (out.length > 0) {
-        outsideEl.innerHTML = `
-          <div class="reminder-item urgent mb-10">
-            <div class="rem-title">
-              ⚠️ ${out.length} employee(s) abhi bahar hain!
-            </div>
-            <div class="rem-meta">
-              ${out.map(p => `${p.empName} (Out: ${p.outTime})`).join(', ')}
-            </div>
-          </div>`;
+        var names = out.map(function(p) {
+          return p.empName + ' (Out: ' + p.outTime + ')';
+        }).join(', ');
+        outsideEl.innerHTML = '<div class="reminder-item urgent mb-10">'
+          + '<div class="rem-title">⚠️ ' + out.length + ' employee(s) abhi bahar hain!</div>'
+          + '<div class="rem-meta">' + names + '</div>'
+          + '</div>';
       } else {
         outsideEl.innerHTML = '';
       }
     }
 
-    // Today's list
-    const listEl = document.getElementById('todayGPList');
+    var listEl = document.getElementById('todayGPList');
     if (!listEl) return;
 
     if (!todayGPs.length) {
-      listEl.innerHTML = `
-        <p class="text-muted text-center" style="padding:20px;">
-          Aaj koi gate pass nahi
-        </p>`;
+      listEl.innerHTML = '<p class="text-muted text-center" style="padding:20px;">Aaj koi gate pass nahi</p>';
       return;
     }
 
-    listEl.innerHTML = [...todayGPs].reverse().map(p => `
-      <div style="display:flex;align-items:center;gap:10px;
-                  padding:9px 0;border-bottom:1px solid var(--card-border);">
-        <span style="font-size:18px;">
-          ${p.isReturned ? '✅' : '⏳'}
-        </span>
-        <div style="flex:1;">
-          <div class="text-bold" style="font-size:13px;">${p.empName}</div>
-          <div class="text-xs text-muted">
-            Out: ${p.outTime}
-            ${p.inTime ? ' | In: ' + p.inTime : ' | Still Outside'}
-          </div>
-          <div class="text-xs text-muted">${p.purpose}</div>
-        </div>
-        ${!p.inTime ? `
-          <button class="btn btn-sm btn-info"
-                  onclick="GatePass.updateInTime('${p.id}')">
-            ⏱️ Mark In
-          </button>
-        ` : ''}
-      </div>
-    `).join('');
-  },
+    var html = '';
+    todayGPs.slice().reverse().forEach(function(p) {
+      var markBtn = !p.inTime
+        ? '<button class="btn btn-sm btn-info" onclick="GatePass.updateInTime(\'' + p.id + '\')">⏱️ Mark In</button>'
+        : '';
 
-  // ---- Update Gate Pass ID ----
-  _updateGPId() {
-    const el = document.getElementById('gpId');
-    if (el) {
-      el.value = 'GP' + String(DB.gatePasses.length + 1).padStart(4, '0');
-    }
-  },
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--card-border);">'
+        + '<span style="font-size:18px;">' + (p.isReturned ? '✅' : '⏳') + '</span>'
+        + '<div style="flex:1;">'
+        + '<div class="text-bold" style="font-size:13px;">' + p.empName + '</div>'
+        + '<div class="text-xs text-muted">Out: ' + p.outTime + (p.inTime ? ' | In: ' + p.inTime : ' | Still Outside') + '</div>'
+        + '<div class="text-xs text-muted">' + p.purpose + '</div>'
+        + '</div>'
+        + markBtn
+        + '</div>';
+    });
 
-  // ---- Clear Form ----
-  _clearForm() {
-    Utils.clearFields(['gpEmployee','gpDept','gpOutTime','gpInTime','gpPurpose']);
-    this._updateGPId();
+    listEl.innerHTML = html;
   },
 
   // ============================================
-  // GOOGLE SHEETS SYNC
+  // GOOGLE SHEETS SYNC — NEW ENTRY
   // ============================================
 
-  // ---- New Entry Sync ----
-  _syncToSheets(pass) {
-    if (this.SHEET_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-      this._setSyncStatus('warning', '⚠️ Google Sheets URL set nahi hai');
-      return;
-    }
+  _syncToSheets: function(pass) {
+    var self = this;
+    self._setSyncStatus('loading', '🔄 Google Sheets mein save ho raha hai...');
 
-    this._setSyncStatus('loading', '🔄 Syncing...');
-
-    const data = {
-      action:   'add',
-      slNo:     pass.id,
-      date:     pass.date,
-      empName:  pass.empName,
-      dept:     pass.dept,
-      outTime:  pass.outTime,
-      inTime:   pass.inTime || '',
-      purpose:  pass.purpose
+    var data = {
+      sheetName: 'Gate Pass',
+      action:    'add',
+      slNo:      pass.id,
+      date:      pass.date,
+      empName:   pass.empName,
+      dept:      pass.dept    || '',
+      outTime:   pass.outTime || '',
+      inTime:    pass.inTime  || '',
+      purpose:   pass.purpose
     };
 
     fetch(this.SHEET_URL, {
@@ -500,28 +368,29 @@ const GatePass = {
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(data)
     })
-    .then(() => {
+    .then(function() {
       pass.synced = true;
       DB.save();
-      this._setSyncStatus('success', '✅ Google Sheets synced!');
-      setTimeout(() => {
-        this._setSyncStatus('idle', '☁️ Google Sheets sync ready');
+      self._setSyncStatus('success', '✅ Google Sheets mein save ho gaya!');
+      setTimeout(function() {
+        self._setSyncStatus('idle', '☁️ Google Sheets sync ready');
       }, 3000);
     })
-    .catch(err => {
-      this._setSyncStatus('error', '❌ Sync failed — data local mein saved hai');
-      console.error('Sync error:', err);
+    .catch(function(err) {
+      console.error('GatePass sync error:', err);
+      self._setSyncStatus('error', '❌ Sync failed — data local mein saved hai');
     });
   },
 
-  // ---- Update In Time Sync ----
-  _syncUpdateToSheets(pass) {
-    if (this.SHEET_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') return;
+  // ---- In Time Update Sync ----
+  _syncUpdateToSheets: function(pass) {
+    var self = this;
 
-    const data = {
-      action:  'updateInTime',
-      slNo:    pass.id,
-      inTime:  pass.inTime
+    var data = {
+      sheetName: 'Gate Pass',
+      action:    'updateInTime',
+      slNo:      pass.id,
+      inTime:    pass.inTime
     };
 
     fetch(this.SHEET_URL, {
@@ -530,26 +399,61 @@ const GatePass = {
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(data)
     })
-    .then(() => {
-      this._setSyncStatus('success', '✅ In Time updated in Sheets!');
-      setTimeout(() => {
-        this._setSyncStatus('idle', '☁️ Google Sheets sync ready');
+    .then(function() {
+      self._setSyncStatus('success', '✅ In Time updated in Sheets!');
+      setTimeout(function() {
+        self._setSyncStatus('idle', '☁️ Google Sheets sync ready');
       }, 3000);
     })
-    .catch(err => {
-      console.error('Update sync error:', err);
+    .catch(function(err) {
+      console.error('In time sync error:', err);
+    });
+  },
+
+  // ---- Auto Sync Pending ----
+  _autoSyncPending: function() {
+    var self     = this;
+    var unsynced = DB.gatePasses.filter(function(p) { return !p.synced; });
+    if (!unsynced.length) return;
+
+    unsynced.forEach(function(pass) {
+      var data = {
+        sheetName: 'Gate Pass',
+        action:    'add',
+        slNo:      pass.id,
+        date:      pass.date,
+        empName:   pass.empName,
+        dept:      pass.dept    || '',
+        outTime:   pass.outTime || '',
+        inTime:    pass.inTime  || '',
+        purpose:   pass.purpose
+      };
+
+      fetch(self.SHEET_URL, {
+        method:  'POST',
+        mode:    'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(data)
+      })
+      .then(function() {
+        pass.synced = true;
+        DB.save();
+        console.log('Auto synced: ' + pass.id + ' ✅');
+      })
+      .catch(function(err) {
+        console.error('Auto sync failed: ' + pass.id, err);
+      });
     });
   },
 
   // ---- Sync Status UI ----
-  _setSyncStatus(type, msg) {
-    const iconEl = document.getElementById('syncIcon');
-    const textEl = document.getElementById('syncText');
-    if (!iconEl || !textEl) return;
+  _setSyncStatus: function(type, msg) {
+    var textEl = document.getElementById('gpSyncText');
+    if (!textEl) return;
 
     textEl.textContent = msg;
 
-    const colors = {
+    var colors = {
       success: 'var(--success)',
       error:   'var(--danger)',
       warning: 'var(--warning)',
@@ -560,57 +464,70 @@ const GatePass = {
     textEl.style.color = colors[type] || 'var(--text-muted)';
   },
 
-  // ---- Auto Save Check ----
-  // Har 30 seconds mein jo unsynced hain unhe sync karo
-  _autoSyncPending() {
-    if (this.SHEET_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') return;
+  // ---- Update GP ID ----
+  _updateGPId: function() {
+    var el = document.getElementById('gpId');
+    if (el) {
+      el.value = 'GP' + String(DB.gatePasses.length + 1).padStart(4, '0');
+    }
+  },
 
-    const unsynced = DB.gatePasses.filter(p => !p.synced);
-    if (unsynced.length === 0) return;
-
-    unsynced.forEach(pass => {
-      this._syncToSheets(pass);
+  // ---- Clear Form ----
+  _clearForm: function() {
+    var fields = ['gpEmployee', 'gpDept', 'gpOutTime', 'gpInTime', 'gpPurpose'];
+    fields.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.value = '';
     });
+    this._updateGPId();
   },
 
-  // ---- Export Excel ----
-  exportExcel() {
+  // ============================================
+  // EXPORT EXCEL
+  // ============================================
+
+  exportExcel: function() {
     if (!DB.gatePasses.length) {
       Toast.error('Koi data nahi!');
       return;
     }
-    const ws = XLSX.utils.json_to_sheet(DB.gatePasses.map(p => ({
-      'S.N':           p.id,
-      'DATE':          p.date,
-      'EMPLOYEE NAME': p.empName,
-      'DEPARTMENT':    p.dept || '',
-      'OUT TIME':      p.outTime || '',
-      'IN TIME':       p.inTime  || '',
-      'PURPOSE':       p.purpose || ''
-    })));
 
-    // Style header row yellow (Excel mein)
-    const wb = XLSX.utils.book_new();
+    var rows = DB.gatePasses.map(function(p) {
+      return {
+        'S.N':           p.id,
+        'DATE':          p.date,
+        'EMPLOYEE NAME': p.empName,
+        'DEPARTMENT':    p.dept    || '',
+        'OUT TIME':      p.outTime || '',
+        'IN TIME':       p.inTime  || '',
+        'PURPOSE':       p.purpose || ''
+      };
+    });
+
+    var ws = XLSX.utils.json_to_sheet(rows);
+    var wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Gate Pass');
-    XLSX.writeFile(wb, `GatePass_PanchhiFashion_${Utils.today()}.xlsx`);
-    Toast.success('Excel Downloaded!', '');
+    XLSX.writeFile(wb, 'GatePass_PanchhiFashion_' + Utils.today() + '.xlsx');
+    Toast.success('Excel Downloaded! 📊', '');
   },
 
-  // ---- Export PDF ----
-  exportPDF() {
+  // ============================================
+  // EXPORT PDF
+  // ============================================
+
+  exportPDF: function() {
     if (!DB.gatePasses.length) {
       Toast.error('Koi data nahi!');
       return;
     }
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    var jsPDF  = window.jspdf.jsPDF;
+    var doc    = new jsPDF();
+
     Reports._header(doc, 'Gate Pass Report');
 
-    doc.autoTable({
-      startY: 35,
-      head: [['S.N.','Date','Employee Name','Department','Out Time','In Time','Purpose']],
-      body: DB.gatePasses.map(p => [
+    var body = DB.gatePasses.map(function(p) {
+      return [
         p.id,
         p.date,
         p.empName,
@@ -618,15 +535,17 @@ const GatePass = {
         p.outTime || '—',
         p.inTime  || 'Still Outside',
         p.purpose
-      ]),
-      styles: { fontSize: 9, cellPadding: 3 },
-      headStyles: {
-        fillColor: [255, 215, 0],
-        textColor: 30,
-        fontStyle: 'bold'
-      },
+      ];
+    });
+
+    doc.autoTable({
+      startY: 35,
+      head: [['S.N.', 'Date', 'Employee Name', 'Department', 'Out Time', 'In Time', 'Purpose']],
+      body: body,
+      styles:     { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [255, 215, 0], textColor: 30, fontStyle: 'bold' },
       alternateRowStyles: { fillColor: [255, 253, 235] },
-      didParseCell(data) {
+      didParseCell: function(data) {
         if (data.column.index === 5 && data.section === 'body') {
           if (data.cell.raw === 'Still Outside') {
             data.cell.styles.textColor = [220, 50, 50];
@@ -637,24 +556,30 @@ const GatePass = {
     });
 
     Reports._footer(doc);
-    doc.save(`GatePass_PanchhiFashion_${Utils.today()}.pdf`);
-    Toast.success('PDF Downloaded!', '');
+    doc.save('GatePass_PanchhiFashion_' + Utils.today() + '.pdf');
+    Toast.success('PDF Downloaded! 📄', '');
   },
 
-  // ---- Master Update ----
-  update() {
+  // ============================================
+  // MASTER UPDATE
+  // ============================================
+
+  update: function() {
     Utils.populateEmpDropdowns(['gpEmployee']);
 
-    // Re-attach onchange
-    const empEl = document.getElementById('gpEmployee');
-    if (empEl) empEl.onchange = () => GatePass.onEmpChange();
+    var empEl = document.getElementById('gpEmployee');
+    if (empEl) {
+      empEl.onchange = function() { GatePass.onEmpChange(); };
+    }
 
     this._updateGPId();
     this._updateTodaySummary();
     this._renderTable();
 
-    // Set today's date default
-    const dateEl = document.getElementById('gpDate');
-    if (dateEl && !dateEl.value) dateEl.value = Utils.today();
+    var dateEl = document.getElementById('gpDate');
+    if (dateEl && !dateEl.value) {
+      dateEl.value = Utils.today();
+    }
   }
+
 };
