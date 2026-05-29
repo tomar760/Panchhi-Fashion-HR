@@ -1,0 +1,333 @@
+/* ================================================
+   SIDEBAR.CSS — Sidebar, Topbar, Notif Banner
+   ================================================ */
+
+/* ---- Sidebar ---- */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: rgba(13, 13, 26, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid var(--card-border);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+/* ---- Logo Area ---- */
+.sidebar-logo {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--card-border);
+  flex-shrink: 0;
+}
+
+.logo-bird {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 6px;
+  animation: birdFloat 3s ease-in-out infinite;
+  /* Fix for emoji rendering — no ?? */
+  font-style: normal;
+  font-variant: normal;
+}
+
+.logo-main {
+  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.logo-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+/* ---- Nav ---- */
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  padding: 12px 12px 5px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  transition: var(--transition);
+  margin-bottom: 2px;
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Hover/Active background */
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: var(--border-radius-sm);
+}
+
+.nav-btn:hover {
+  color: var(--text);
+  transform: translateX(4px);
+}
+
+.nav-btn:hover::before {
+  opacity: 0.12;
+}
+
+.nav-btn.active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 4px 15px rgba(108, 99, 255, 0.35);
+}
+
+.nav-btn.active::before {
+  opacity: 0;
+}
+
+.nav-icon {
+  font-size: 17px;
+  position: relative;
+  z-index: 1;
+  min-width: 20px;
+  text-align: center;
+  /* Prevent emoji becoming ?? */
+  font-style: normal;
+}
+
+.nav-label {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.nav-badge {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+  background: var(--secondary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+  line-height: 18px;
+}
+
+.nav-badge.badge-orange { background: var(--accent-orange); }
+.nav-badge.badge-green  { background: var(--accent-green); color: #111; }
+.nav-badge.badge-red    { background: var(--danger); }
+.nav-badge.hide         { display: none; }
+
+/* ---- Sidebar Footer ---- */
+.sidebar-footer {
+  padding: 15px 20px;
+  border-top: 1px solid var(--card-border);
+  flex-shrink: 0;
+}
+
+.made-by {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.7;
+}
+
+.made-by strong {
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--accent-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.made-by span {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+/* ---- Top Bar ---- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  height: var(--topbar-height);
+  background: rgba(13, 13, 26, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--card-border);
+  padding: 0 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.menu-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-sm);
+  font-size: 18px;
+  transition: var(--transition);
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-toggle:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.page-title {
+  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.time-chip {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.admin-chip {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* ---- Notification Banner ---- */
+.notif-banner {
+  height: var(--notif-height);
+  background: linear-gradient(
+    90deg,
+    rgba(108, 99, 255, 0.1),
+    rgba(255, 101, 132, 0.08)
+  );
+  border-bottom: 1px solid rgba(108, 99, 255, 0.15);
+  padding: 0 25px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.notif-bell {
+  font-size: 15px;
+  animation: bellRing 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.notif-text {
+  color: var(--text-muted);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notif-text strong {
+  color: var(--accent-orange);
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: flex;
+  }
+
+  .topbar {
+    padding: 0 15px;
+  }
+
+  .admin-chip span:last-child {
+    display: none;
+  }
+
+  .notif-banner {
+    padding: 0 15px;
+  }
+}
