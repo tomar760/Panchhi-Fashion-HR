@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panchhi Fashion — HR & Store Tool</title>
+
+  <!-- Fonts — System fallback (no ?? issue) -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap');
+  </style>
+
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/sidebar.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/animations.css">
+
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <div class="bg-animated" aria-hidden="true">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Modal Container -->
+  <div id="modalContainer"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-bird">&#x1F985;</span>
+      <div class="logo-main">PANCHHI FASHION</div>
+      <div class="logo-sub">HR &amp; STORE MANAGEMENT</div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <!-- Injected by sidebar.js -->
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="made-by">
+        Designed &amp; Built by<br>
+        <strong>Aditya</strong><br>
+        <span>Panchhi Fashion &copy; 2025</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main" id="mainWrapper">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle">&#9776;</button>
+        <div>
+          <h1 class="page-title" id="pageTitle">Dashboard</h1>
+          <p class="page-subtitle" id="pageSubtitle">Welcome back!</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="time-chip" id="liveTime">--:--</div>
+        <div class="admin-chip">
+          <span>&#x1F451;</span>
+          <span>Aditya &mdash; HR Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- NOTIFICATION BANNER -->
+    <div class="notif-banner">
+      <span class="notif-bell" id="notifBell">&#x1F514;</span>
+      <div class="notif-text" id="notifText">
+        System ready hai — Panchhi Fashion HR Tool loaded
+      </div>
+    </div>
+
+    <!-- PAGE CONTENT — Sections inject hote hain yahan -->
+    <main class="content" id="appContent">
+      <div class="loading-screen" id="loadingScreen">
+        <div class="loader-bird">&#x1F985;</div>
+        <div class="loader-text">Loading Panchhi Fashion...</div>
+      </div>
+    </main>
+
+  </div><!-- /main -->
+
+  <!-- JS Files — Order matter karta hai -->
+  <script src="assets/js/db.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/employees.js"></script>
+  <script src="assets/js/attendance.js"></script>
+  <script src="assets/js/salary.js"></script>
+  <script src="assets/js/leave.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/inventory.js"></script>
+  <script src="assets/js/reminders.js"></script>
+  <script src="assets/js/reports.js"></script>
+  <script src="assets/js/app.js"></script>
+
+</body>
+</html>
