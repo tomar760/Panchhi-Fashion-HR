@@ -69,3 +69,17 @@ const DB = {
     this.save();
   }
 };
+// db.js mein _data object mein ye add karo:
+_data: {
+  employees:    [],
+  attendance:   [],
+  salaries:     [],
+  leaves:       [],
+  storeEntries: [],
+  inventory:    [],
+  reminders:    [],
+  gatePasses:   []  // ← YE ADD KARO
+},
+
+// Aur getter add karo:
+get gatePasses() { return this._data.gatePasses; },
