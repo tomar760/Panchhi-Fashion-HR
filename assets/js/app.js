@@ -4,194 +4,139 @@
 
 const NAV_ITEMS = [
   { section: true, label: 'Main' },
-  {
-    id: 'dashboard', icon: '🏠',
-    label: 'Dashboard', badge: null
-  },
+  { id: 'dashboard',  icon: '🏠', label: 'Dashboard',        badge: null },
 
   { section: true, label: 'HR Module' },
-  {
-    id: 'employees', icon: '👥',
-    label: 'Employees',
-    badge: 'empBadge', badgeClass: ''
-  },
-  {
-    id: 'attendance', icon: '📋',
-    label: 'Attendance', badge: null
-  },
-  {
-    id: 'salary', icon: '💰',
-    label: 'Salary', badge: null
-  },
-  {
-    id: 'leave', icon: '🏖️',
-    label: 'Leave Management', badge: null
-  },
+  { id: 'employees',  icon: '👥', label: 'Employees',         badge: 'empBadge',   badgeClass: '' },
+  { id: 'attendance', icon: '📋', label: 'Attendance',        badge: null },
+  { id: 'salary',     icon: '💰', label: 'Salary',            badge: null },
+  { id: 'leave',      icon: '🏖️', label: 'Leave Management',  badge: null },
 
   { section: true, label: 'Store Module' },
-  {
-    id: 'store', icon: '🏪',
-    label: 'Store Entries',
-    badge: 'storeBadge', badgeClass: 'badge-orange'
-  },
-  {
-    id: 'inventory', icon: '📦',
-    label: 'Inventory', badge: null
-  },
+  { id: 'store',      icon: '🏪', label: 'Store Entries',     badge: 'storeBadge', badgeClass: 'badge-orange' },
+  { id: 'inventory',  icon: '📦', label: 'Inventory',         badge: null },
 
   { section: true, label: 'Gate & Security' },
-  {
-    id: 'gatepass', icon: '🚪',
-    label: 'Gate Pass', badge: null
-  },
+  { id: 'gatepass',   icon: '🚪', label: 'Gate Pass',         badge: null },
 
   { section: true, label: 'Management' },
-  {
-    id: 'reminders', icon: '🔔',
-    label: 'Reminders',
-    badge: 'remBadge', badgeClass: 'badge-red'
-  },
-  {
-    id: 'reports', icon: '📊',
-    label: 'Reports & Export', badge: null
-  }
+  { id: 'reminders',  icon: '🔔', label: 'Reminders',         badge: 'remBadge',   badgeClass: 'badge-red' },
+  { id: 'reports',    icon: '📊', label: 'Reports & Export',  badge: null }
 ];
 
 const PAGE_META = {
-  dashboard:  {
-    title: '🏠 Dashboard',
-    sub:   'Company ki puri overview ek nazar mein'
-  },
-  employees:  {
-    title: '👥 Employee Management',
-    sub:   'Staff ki puri info manage karo'
-  },
-  attendance: {
-    title: '📋 Attendance',
-    sub:   'Roz ki attendance mark karo'
-  },
-  salary:     {
-    title: '💰 Salary Management',
-    sub:   'Calculate aur record rakho'
-  },
-  leave:      {
-    title: '🏖️ Leave Management',
-    sub:   'Leave applications manage karo'
-  },
-  store:      {
-    title: '🏪 Store Management',
-    sub:   'Kon kya lekar gaya — sab record karo'
-  },
-  inventory:  {
-    title: '📦 Inventory / Stock',
-    sub:   'Store ka stock track karo'
-  },
-  gatepass:   {
-    title: '🚪 Gate Pass',
-    sub:   'Employee entry / exit record karo'
-  },
-  reminders:  {
-    title: '🔔 Reminders & Alerts',
-    sub:   'Kuch bhoolna nahi — yahan set karo'
-  },
-  reports:    {
-    title: '📊 Reports & Export',
-    sub:   'PDF aur Excel mein download karo'
-  }
+  dashboard:  { title: '🏠 Dashboard',          sub: 'Company ki puri overview ek nazar mein' },
+  employees:  { title: '👥 Employee Management', sub: 'Staff ki puri info manage karo' },
+  attendance: { title: '📋 Attendance',          sub: 'Roz ki attendance mark karo' },
+  salary:     { title: '💰 Salary Management',   sub: 'Calculate aur record rakho' },
+  leave:      { title: '🏖️ Leave Management',    sub: 'Leave applications manage karo' },
+  store:      { title: '🏪 Store Management',    sub: 'Kon kya lekar gaya — sab record karo' },
+  inventory:  { title: '📦 Inventory / Stock',   sub: 'Store ka stock track karo' },
+  gatepass:   { title: '🚪 Gate Pass',           sub: 'Employee entry / exit record karo' },
+  reminders:  { title: '🔔 Reminders & Alerts',  sub: 'Kuch bhoolna nahi — yahan set karo' },
+  reports:    { title: '📊 Reports & Export',    sub: 'PDF aur Excel mein download karo' }
 };
 
-/* ---- Build Sidebar ---- */
+/* ================================================
+   BUILD SIDEBAR
+   ================================================ */
 function buildSidebar() {
   const nav  = document.getElementById('sidebarNav');
   let   html = '';
 
-  NAV_ITEMS.forEach(item => {
+  NAV_ITEMS.forEach(function(item) {
     if (item.section) {
       if (item.label) {
-        html += `
-          <div class="nav-section-label">${item.label}</div>`;
+        html += '<div class="nav-section-label">' + item.label + '</div>';
       }
       return;
     }
 
-    const badgeHTML = item.badge
-      ? `<span class="nav-badge ${item.badgeClass || ''} hide"
-               id="${item.badge}">0</span>`
+    var badgeHTML = item.badge
+      ? '<span class="nav-badge ' + (item.badgeClass || '') + ' hide" id="' + item.badge + '">0</span>'
       : '';
 
-    html += `
-      <button class="nav-btn" id="nav-${item.id}"
-              onclick="App.navigate('${item.id}', this)">
-        <span class="nav-icon">${item.icon}</span>
-        <span class="nav-label">${item.label}</span>
-        ${badgeHTML}
-      </button>`;
+    html += '<button class="nav-btn" id="nav-' + item.id + '" onclick="App.navigate(\'' + item.id + '\', this)">'
+          + '<span class="nav-icon">' + item.icon + '</span>'
+          + '<span class="nav-label">' + item.label + '</span>'
+          + badgeHTML
+          + '</button>';
   });
 
   nav.innerHTML = html;
 }
 
-/* ---- Build Page Sections ---- */
+/* ================================================
+   BUILD SECTIONS
+   ================================================ */
 function buildSections() {
-  const content = document.getElementById('appContent');
-
-  const loading = document.getElementById('loadingScreen');
+  var content = document.getElementById('appContent');
+  var loading = document.getElementById('loadingScreen');
   if (loading) loading.remove();
 
-  const sections = {
-    dashboard:  typeof Dashboard  !== 'undefined' ? Dashboard.html()  : '',
-    employees:  typeof Employees  !== 'undefined' ? Employees.html()  : '',
-    attendance: typeof Attendance !== 'undefined' ? Attendance.html() : '',
-    salary:     typeof Salary     !== 'undefined' ? Salary.html()     : '',
-    leave:      typeof Leave      !== 'undefined' ? Leave.html()      : '',
-    store:      typeof Store      !== 'undefined' ? Store.html()      : '',
-    inventory:  typeof Inventory  !== 'undefined' ? Inventory.html()  : '',
-    gatepass:   typeof GatePass   !== 'undefined' ? GatePass.html()   : '',
-    reminders:  typeof Reminders  !== 'undefined' ? Reminders.html()  : '',
-    reports:    typeof Reports    !== 'undefined' ? Reports.html()    : ''
-  };
+  var html = '';
 
-  content.innerHTML = Object.values(sections).join('');
+  if (typeof Dashboard  !== 'undefined') html += Dashboard.html();
+  if (typeof Employees  !== 'undefined') html += Employees.html();
+  if (typeof Attendance !== 'undefined') html += Attendance.html();
+  if (typeof Salary     !== 'undefined') html += Salary.html();
+  if (typeof Leave      !== 'undefined') html += Leave.html();
+  if (typeof Store      !== 'undefined') html += Store.html();
+  if (typeof Inventory  !== 'undefined') html += Inventory.html();
+  if (typeof GatePass   !== 'undefined') html += GatePass.html();
+  if (typeof Reminders  !== 'undefined') html += Reminders.html();
+  if (typeof Reports    !== 'undefined') html += Reports.html();
+
+  content.innerHTML = html;
 }
 
-/* ---- App Object ---- */
-const App = {
+/* ================================================
+   APP OBJECT
+   ================================================ */
+var App = {
+
   currentSection: 'dashboard',
 
-  navigate(id, btnEl) {
-    document.querySelectorAll('.section').forEach(s => {
+  navigate: function(id, btnEl) {
+    var sections = document.querySelectorAll('.section');
+    sections.forEach(function(s) {
       s.classList.remove('active');
     });
-    document.querySelectorAll('.nav-btn').forEach(b => {
+
+    var navBtns = document.querySelectorAll('.nav-btn');
+    navBtns.forEach(function(b) {
       b.classList.remove('active');
     });
 
-    const sec = document.getElementById('section-' + id);
+    var sec = document.getElementById('section-' + id);
     if (sec) sec.classList.add('active');
 
     if (btnEl) {
       btnEl.classList.add('active');
     } else {
-      const navBtn = document.getElementById('nav-' + id);
+      var navBtn = document.getElementById('nav-' + id);
       if (navBtn) navBtn.classList.add('active');
     }
 
-    const meta = PAGE_META[id];
+    var meta = PAGE_META[id];
     if (meta) {
-      document.getElementById('pageTitle').textContent    = meta.title;
-      document.getElementById('pageSubtitle').textContent = meta.sub;
+      var titleEl    = document.getElementById('pageTitle');
+      var subtitleEl = document.getElementById('pageSubtitle');
+      if (titleEl)    titleEl.textContent    = meta.title;
+      if (subtitleEl) subtitleEl.textContent = meta.sub;
     }
 
     this.currentSection = id;
     this.refreshSection(id);
 
     if (window.innerWidth <= 768) {
-      document.getElementById('sidebar').classList.add('collapsed');
+      var sidebar = document.getElementById('sidebar');
+      if (sidebar) sidebar.classList.add('collapsed');
     }
   },
 
-  refreshSection(id) {
-    const modules = {
+  refreshSection: function(id) {
+    var map = {
       dashboard:  typeof Dashboard  !== 'undefined' ? Dashboard  : null,
       employees:  typeof Employees  !== 'undefined' ? Employees  : null,
       attendance: typeof Attendance !== 'undefined' ? Attendance : null,
@@ -204,149 +149,171 @@ const App = {
       reports:    typeof Reports    !== 'undefined' ? Reports    : null
     };
 
-    const mod = modules[id];
+    var mod = map[id];
     if (mod && typeof mod.update === 'function') {
       mod.update();
     }
   },
 
-  updateBadges() {
-    const badges = [
-      {
-        id:  'empBadge',
-        val: DB.employees.length,
-        show: DB.employees.length > 0
-      },
-      {
-        id:  'storeBadge',
-        val: DB.storeEntries.filter(e => !e.isComplete).length,
-        show: DB.storeEntries.filter(e => !e.isComplete).length > 0
-      },
-      {
-        id:  'remBadge',
-        val: DB.reminders.filter(r => !r.done).length,
-        show: DB.reminders.filter(r => !r.done).length > 0
-      }
-    ];
+  updateBadges: function() {
+    var empEl = document.getElementById('empBadge');
+    if (empEl) {
+      var ec = DB.employees.length;
+      empEl.textContent = ec;
+      empEl.classList.toggle('hide', ec === 0);
+    }
 
-    badges.forEach(b => {
-      const el = document.getElementById(b.id);
-      if (!el) return;
-      el.textContent = b.val;
-      el.classList.toggle('hide', !b.show);
-    });
+    var storeEl = document.getElementById('storeBadge');
+    if (storeEl) {
+      var sc = DB.storeEntries.filter(function(e) {
+        return !e.isComplete;
+      }).length;
+      storeEl.textContent = sc;
+      storeEl.classList.toggle('hide', sc === 0);
+    }
+
+    var remEl = document.getElementById('remBadge');
+    if (remEl) {
+      var rc = DB.reminders.filter(function(r) {
+        return !r.done;
+      }).length;
+      remEl.textContent = rc;
+      remEl.classList.toggle('hide', rc === 0);
+    }
   },
 
-  updateNotifBanner() {
-    const pending   = DB.storeEntries.filter(e => !e.isComplete).length;
-    const activeRem = DB.reminders.filter(r => !r.done).length;
-    const today     = Utils.today();
-    const todayRem  = DB.reminders.filter(
-      r => !r.done && r.datetime?.startsWith(today)
-    ).length;
+  updateNotifBanner: function() {
+    var pending = DB.storeEntries.filter(function(e) {
+      return !e.isComplete;
+    }).length;
 
-    const outside = DB.gatePasses.filter(
-      p => p.date === today && !p.isReturned
-    ).length;
+    var activeRem = DB.reminders.filter(function(r) {
+      return !r.done;
+    }).length;
 
-    let msg = `Panchhi Fashion HR Tool Ready ✅ &nbsp;|&nbsp; 
-               👥 ${DB.employees.length} Employees &nbsp;|&nbsp; `;
+    var today    = Utils.today();
+
+    var todayRem = DB.reminders.filter(function(r) {
+      return !r.done && r.datetime && r.datetime.startsWith(today);
+    }).length;
+
+    var outside = DB.gatePasses.filter(function(p) {
+      return p.date === today && !p.isReturned;
+    }).length;
+
+    var msg = 'Panchhi Fashion HR Tool Ready ✅ &nbsp;|&nbsp; '
+            + '👥 ' + DB.employees.length + ' Employees &nbsp;|&nbsp; ';
 
     if (pending) {
-      msg += `<strong>⚠️ ${pending} Store entries incomplete</strong>
-              &nbsp;|&nbsp; `;
+      msg += '<strong>⚠️ ' + pending + ' Store entries incomplete</strong> &nbsp;|&nbsp; ';
     }
     if (outside) {
-      msg += `<strong>🚪 ${outside} employee(s) bahar hain</strong>
-              &nbsp;|&nbsp; `;
+      msg += '<strong>🚪 ' + outside + ' employee(s) bahar hain</strong> &nbsp;|&nbsp; ';
     }
     if (todayRem) {
-      msg += `<strong>🔔 ${todayRem} Reminder(s) aaj ke!</strong>
-              &nbsp;|&nbsp; `;
+      msg += '<strong>🔔 ' + todayRem + ' Reminder(s) aaj ke!</strong> &nbsp;|&nbsp; ';
     }
 
-    msg += `👑 Designed by Aditya`;
-    document.getElementById('notifText').innerHTML = msg;
+    msg += '👑 Designed by Aditya';
+
+    var el = document.getElementById('notifText');
+    if (el) el.innerHTML = msg;
   },
 
-  startClock() {
-    const update = () => {
-      const now  = new Date();
-      const time = now.toLocaleTimeString('en-IN', {
+  startClock: function() {
+    function update() {
+      var now  = new Date();
+      var time = now.toLocaleTimeString('en-IN', {
         hour: '2-digit', minute: '2-digit', hour12: true
       });
-      const date = now.toLocaleDateString('en-IN', {
+      var date = now.toLocaleDateString('en-IN', {
         day: '2-digit', month: 'short'
       });
-      const el = document.getElementById('liveTime');
-      if (el) el.textContent = `${date} ${time}`;
-    };
+      var el = document.getElementById('liveTime');
+      if (el) el.textContent = date + ' ' + time;
+    }
     update();
     setInterval(update, 1000);
   },
 
-  startReminderCheck() {
-    const check = () => {
-      const now = new Date();
+  startReminderCheck: function() {
+    setInterval(function() {
+      var now = new Date();
 
-      DB.reminders
-        .filter(r => !r.done)
-        .forEach(r => {
-          const rTime = new Date(r.datetime);
-          const diff  = now - rTime;
+      DB.reminders.filter(function(r) {
+        return !r.done;
+      }).forEach(function(r) {
+        var rTime = new Date(r.datetime);
+        var diff  = now - rTime;
 
-          // Alert if within last 1 minute
-          if (diff >= 0 && diff <= 60000) {
-            Toast.warning('🔔 REMINDER!', r.title);
+        if (diff >= 0 && diff <= 60000) {
+          Toast.warning('🔔 REMINDER!', r.title);
 
-            // Agar store reminder hai aur isRecurring hai
-            // toh 3 ghante baad naya reminder banao
-            if (r.isRecurring && r.linkedStoreId) {
-              const entry = DB.storeEntries.find(
-                e => e.id === r.linkedStoreId
-              );
-              // Sirf tab naya reminder banao jab abhi bhi incomplete ho
-              if (entry && !entry.isComplete) {
-                const nextTime = new Date(
-                  Date.now() + 3 * 3600000
-                );
-                DB.reminders.push({
-                  id:            Date.now(),
-                  title:         r.title,
-                  desc:          r.desc,
-                  datetime:      nextTime.toISOString().slice(0, 16),
-                  type:          'store',
-                  priority:      'High',
-                  repeat:        'once',
-                  done:          false,
-                  linkedStoreId: r.linkedStoreId,
-                  isRecurring:   true
-                });
-                DB.save();
-              }
-              // Purana reminder done mark karo
-              r.done = true;
+          if (r.isRecurring && r.linkedStoreId) {
+            var entry = DB.storeEntries.find(function(e) {
+              return e.id === r.linkedStoreId;
+            });
+
+            if (entry && !entry.isComplete) {
+              var nextTime = new Date(Date.now() + 3 * 3600000);
+              DB.reminders.push({
+                id:            Date.now(),
+                title:         r.title,
+                desc:          r.desc,
+                datetime:      nextTime.toISOString().slice(0, 16),
+                type:          'store',
+                priority:      'High',
+                repeat:        'once',
+                done:          false,
+                linkedStoreId: r.linkedStoreId,
+                isRecurring:   true
+              });
               DB.save();
             }
-          }
-        });
-    };
 
-    // Har 30 second check karo
-    setInterval(check, 30000);
+            r.done = true;
+            DB.save();
+          }
+        }
+      });
+    }, 30000);
   },
 
-  initMobileMenu() {
-    const toggle  = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
+  startAutoSave: function() {
+    setInterval(function() {
+      DB.save();
+
+      if (typeof GatePass !== 'undefined') {
+        GatePass._autoSyncPending();
+      }
+
+      if (typeof Store !== 'undefined') {
+        Store._autoSyncPending();
+      }
+
+      var chip = document.getElementById('autoSaveChip');
+      if (chip) {
+        chip.style.background = 'rgba(67,233,123,0.3)';
+        chip.textContent      = '💾 Saved!';
+        setTimeout(function() {
+          chip.style.background = 'rgba(67,233,123,0.15)';
+          chip.textContent      = '💾 Auto Save: ON';
+        }, 1500);
+      }
+    }, 30000);
+  },
+
+  initMobileMenu: function() {
+    var toggle  = document.getElementById('menuToggle');
+    var sidebar = document.getElementById('sidebar');
 
     if (toggle) {
-      toggle.addEventListener('click', () => {
+      toggle.addEventListener('click', function() {
         sidebar.classList.toggle('collapsed');
       });
     }
 
-    document.addEventListener('click', e => {
+    document.addEventListener('click', function(e) {
       if (window.innerWidth > 768) return;
       if (!sidebar.contains(e.target) &&
           toggle && !toggle.contains(e.target)) {
@@ -355,30 +322,30 @@ const App = {
     });
   },
 
-  // ---- AUTO SAVE (har 30 sec) ----
-  startAutoSave() {
-    setInterval(() => {
-      DB.save();
+  setDefaultDates: function() {
+    var today     = Utils.today();
+    var thisMonth = Utils.thisMonth();
 
-      // Gate Pass unsynced entries sync karo
-      if (typeof GatePass !== 'undefined') {
-        GatePass._autoSyncPending();
-      }
+    function setVal(id, val) {
+      var el = document.getElementById(id);
+      if (el && !el.value) el.value = val;
+    }
 
-      // Auto save indicator flash
-      const chip = document.getElementById('autoSaveChip');
-      if (chip) {
-        chip.style.background = 'rgba(67,233,123,0.3)';
-        chip.textContent      = '💾 Saved!';
-        setTimeout(() => {
-          chip.style.background = 'rgba(67,233,123,0.15)';
-          chip.textContent      = '💾 Auto Save: ON';
-        }, 1500);
-      }
-    }, 30000);
+    setVal('attDate',        today);
+    setVal('storeDate',      today);
+    setVal('leaveFrom',      today);
+    setVal('leaveTo',        today);
+    setVal('gpDate',         today);
+    setVal('salMonth',       thisMonth);
+    setVal('repAttMonth',    thisMonth);
+    setVal('repSalMonth',    thisMonth);
+    setVal('repStoreMonth',  thisMonth);
+
+    var remDef = new Date(Date.now() + 2 * 3600000);
+    setVal('remDateTime', remDef.toISOString().slice(0, 16));
   },
 
-  init() {
+  init: function() {
     DB.load();
     buildSidebar();
     buildSections();
@@ -386,16 +353,22 @@ const App = {
     this.startReminderCheck();
     this.startAutoSave();
     this.initMobileMenu();
+    this.setDefaultDates();
+    this.navigate('dashboard');
 
-    // Default dates set karo
-    const today     = Utils.today();
-    const thisMonth = Utils.thisMonth();
+    setTimeout(function() {
+      Toast.success(
+        'Panchhi Fashion Ready! 🦅',
+        'HR & Store Tool loaded — Aditya ✅'
+      );
+    }, 800);
+  }
 
-    const setVal = (id, val) => {
-      const el = document.getElementById(id);
-      if (el) el.value = val;
-    };
+};
 
-    setVal('attDate',       today);
-    setVal('storeDate',     today);
-    
+/* ================================================
+   START
+   ================================================ */
+document.addEventListener('DOMContentLoaded', function() {
+  App.init();
+});
