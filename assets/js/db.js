@@ -1,5 +1,5 @@
 /* ================================================
-   DB.JS — Data Store, LocalStorage
+   DB.JS — Data Store + LocalStorage
    ================================================ */
 
 const DB = {
@@ -10,7 +10,8 @@ const DB = {
     leaves:       [],
     storeEntries: [],
     inventory:    [],
-    reminders:    []
+    reminders:    [],
+    gatePasses:   []
   },
 
   KEY: 'pf_db_v3',
@@ -20,7 +21,6 @@ const DB = {
       const saved = localStorage.getItem(this.KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Merge — naye fields miss na hon
         Object.keys(this._data).forEach(k => {
           if (parsed[k]) this._data[k] = parsed[k];
         });
@@ -46,6 +46,7 @@ const DB = {
   get storeEntries() { return this._data.storeEntries; },
   get inventory()    { return this._data.inventory;    },
   get reminders()    { return this._data.reminders;    },
+  get gatePasses()   { return this._data.gatePasses;   },
 
   // Helpers
   nextId(prefix, list) {
@@ -61,7 +62,6 @@ const DB = {
     return new Date().toISOString().slice(0, 7);
   },
 
-  // Clear all (danger!)
   clearAll() {
     Object.keys(this._data).forEach(k => {
       this._data[k] = [];
@@ -69,17 +69,3 @@ const DB = {
     this.save();
   }
 };
-// db.js mein _data object mein ye add karo:
-_data: {
-  employees:    [],
-  attendance:   [],
-  salaries:     [],
-  leaves:       [],
-  storeEntries: [],
-  inventory:    [],
-  reminders:    [],
-  gatePasses:   []  // ← YE ADD KARO
-},
-
-// Aur getter add karo:
-get gatePasses() { return this._data.gatePasses; },
