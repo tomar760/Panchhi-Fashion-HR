@@ -10,8 +10,7 @@ const GatePass = {
 
   // ---- Google Sheets URL ----
   // Apna Google Apps Script URL yahan daal do
-  SHEET_URL: 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE',
-
+  SHEET_URL: 'https://script.google.com/macros/s/AKfycbw-DmUEw4atM28jOeJh4G5lZEXI3lxRu4MGp_FdlHYIAHE6EWMmVFmxfJIX2W-_go2d/exec',
   html() {
     return `
     <div class="section" id="section-gatepass">
