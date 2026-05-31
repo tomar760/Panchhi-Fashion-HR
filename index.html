@@ -1,114 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panchhi Fashion — HR & Store Tool</title>
-
-  <!-- Fonts — System fallback (no ?? issue) -->
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap');
-  </style>
-
-  <!-- CSS Files -->
-  <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="assets/css/sidebar.css">
-  <link rel="stylesheet" href="assets/css/components.css">
-  <link rel="stylesheet" href="assets/css/animations.css">
-
-  <!-- External Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Panchhi HR - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body>
-
-  <!-- Animated Background -->
-  <div class="bg-animated" aria-hidden="true">
-    <div class="bg-orb orb-1"></div>
-    <div class="bg-orb orb-2"></div>
-    <div class="bg-orb orb-3"></div>
-  </div>
-
-  <!-- Toast Container -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <!-- Modal Container -->
-  <div id="modalContainer"></div>
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <span class="logo-bird">&#x1F985;</span>
-      <div class="logo-main">PANCHHI FASHION</div>
-      <div class="logo-sub">HR &amp; STORE MANAGEMENT</div>
+<body class="bg-slate-900 flex items-center justify-center h-screen">
+    <div class="bg-white p-10 rounded-3xl shadow-2xl w-96 text-center">
+        <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold mx-auto mb-6 shadow-lg">P</div>
+        <h1 class="text-2xl font-black text-gray-900">Panchhi HR</h1>
+        <p class="text-gray-500 text-sm mb-8">Enterprise Suite</p>
+        <input type="password" placeholder="Admin PIN" class="w-full p-4 border rounded-xl mb-6 text-center font-bold outline-none focus:border-indigo-500 bg-gray-50">
+        <button onclick="window.location.href='modules/dashboard.html'" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-md hover:bg-indigo-700">Enter System</button>
     </div>
-
-    <nav class="sidebar-nav" id="sidebarNav">
-      <!-- Injected by sidebar.js -->
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="made-by">
-        Designed &amp; Built by<br>
-        <strong>Aditya</strong><br>
-        <span>Panchhi Fashion &copy; 2026</span>
-      </div>
-    </div>
-  </aside>
-
-  <!-- MAIN WRAPPER -->
-  <div class="main" id="mainWrapper">
-
-    <!-- TOP BAR -->
-    <header class="topbar">
-      <div class="topbar-left">
-        <button class="menu-toggle" id="menuToggle">&#9776;</button>
-        <div>
-          <h1 class="page-title" id="pageTitle">Dashboard</h1>
-          <p class="page-subtitle" id="pageSubtitle">Welcome back!</p>
-        </div>
-      </div>
-      <div class="topbar-right">
-        <div class="time-chip" id="liveTime">--:--</div>
-        <div class="admin-chip">
-          <span>&#x1F451;</span>
-          <span>Aditya &mdash; HR Admin</span>
-        </div>
-      </div>
-    </header>
-
-    <!-- NOTIFICATION BANNER -->
-    <div class="notif-banner">
-      <span class="notif-bell" id="notifBell">&#x1F514;</span>
-      <div class="notif-text" id="notifText">
-        System ready hai — Panchhi Fashion HR Tool loaded
-      </div>
-    </div>
-
-    <!-- PAGE CONTENT — Sections inject hote hain yahan -->
-    <main class="content" id="appContent">
-      <div class="loading-screen" id="loadingScreen">
-        <div class="loader-bird">&#x1F985;</div>
-        <div class="loader-text">Loading Panchhi Fashion...</div>
-      </div>
-    </main>
-
-  </div><!-- /main -->
-
-<!-- JS Files — Bilkul is order mein -->
-<script src="assets/js/db.js"></script>
-<script src="assets/js/utils.js"></script>
-<script src="assets/js/employees.js"></script>
-<script src="assets/js/attendance.js"></script>
-<script src="assets/js/salary.js"></script>
-<script src="assets/js/leave.js"></script>
-<script src="assets/js/store.js"></script>
-<script src="assets/js/inventory.js"></script>
-<script src="assets/js/gatepass.js"></script>
-<script src="assets/js/reminders.js"></script>
-<script src="assets/js/reports.js"></script>
-<script src="assets/js/app.js"></script>
-  
 </body>
 </html>
