@@ -9,7 +9,7 @@
    GOOGLE SHEETS API  (replaces Store)
 ══════════════════════════════════════ */
 const GSheet = {
-  WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbxNL8Au4HugjloU0t7EC5U3RNdFLXF3A5PdB4hIDhw1yqQKksvurFoP9rV9zzzGRm7vYw/exec',
+  WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbxCVCnEv0vFeOOX_3FbFc-Owd3nIFwoY9ZRwjB9XC0SEY6Laau1rmQYGu4Austje0NbUg/exec',
 
   /* ── POST: save / update / delete ──────────────────────── */
   async send(action, data) {
