@@ -10,102 +10,585 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
-.live-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: var(--danger-light); color: var(--danger); border-radius: 20px; font-size: 11px; font-weight: 800; }
-.early-box { background: var(--warning-light); border: 1px solid #fcd34d; border-radius: var(--radius-md); padding: 14px 16px; margin-top: 12px; display: none; }
-.monthly-bar { height: 7px; background: var(--gray-200); border-radius: 4px; overflow: hidden; margin-top: 4px; }
-.monthly-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--primary), #a855f7); transition: width 0.6s; }
+.live-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:var(--danger-light);color:var(--danger);border-radius:20px;font-size:11px;font-weight:800;}
+.early-box{background:var(--warning-light);border:1px solid #fcd34d;border-radius:var(--radius-md);padding:14px 16px;margin-top:12px;display:none;}
+.early-box .ev{font-size:22px;font-weight:800;color:#92400e;}
+.early-box .el{font-size:12px;color:#b45309;font-weight:600;margin-top:2px;}
+.on-time-box{background:var(--success-light);border:1px solid #6ee7b7;border-radius:var(--radius-md);padding:14px 16px;margin-top:12px;display:none;}
+.monthly-bar{height:7px;background:var(--gray-200);border-radius:4px;overflow:hidden;margin-top:4px;}
+.monthly-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--primary),#a21caf);transition:width .6s;}
+.outside-badge{display:inline-flex;align-items:center;gap:5px;background:#fef9c3;color:#854d0e;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;}
 </style>
 </head>
 <body>
 <div class="app-wrapper active" id="appWrapper">
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 <nav class="sidebar" id="sidebar">
-  <div class="sidebar-brand"><img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img" onerror="this.outerHTML='<div class=\'brand-icon\'><i class=\'fas fa-feather-pointed\'></i></div>'"><div class="brand-text"><h2>House of Panchhi</h2><span>HR Pro</span></div></div>
+  <div class="sidebar-brand">
+    <img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img" onerror="this.style.display='none'">
+    <div class="brand-text"><h2>House of Panchhi</h2><span>HR Software v2.0</span></div>
+  </div>
   <div class="sidebar-nav">
-    <div class="nav-section"><div class="nav-section-title">Main</div><div class="nav-link" data-module="dashboard" onclick="window.location='index.html'"><i class="fas fa-th-large"></i> Dashboard</div></div>
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-th-large"></i> Dashboard</div>
+    </div>
     <div class="nav-section">
       <div class="nav-section-title">HR & Payroll</div>
-      <div class="nav-link" data-module="employees" onclick="window.location='employees.html'"><i class="fas fa-users"></i> Employees</div>
-      <div class="nav-link" data-module="attendance" onclick="window.location='attendance.html'"><i class="fas fa-calendar-check"></i> Attendance</div>
-      <div class="nav-link active" data-module="gatepass"><i class="fas fa-door-open"></i> Gate Pass</div>
-      <div class="nav-link" data-module="leave" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i> Leave</div>
-      <div class="nav-link" data-module="salary" onclick="window.location='salary.html'"><i class="fas fa-money-bill-wave"></i> Salary</div>
+      <div class="nav-link" onclick="window.location='employees.html'"><i class="fas fa-users"></i> Employee Directory</div>
+      <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-calendar-check"></i> Attendance</div>
+      <div class="nav-link active"><i class="fas fa-door-open"></i> Gate Pass</div>
+      <div class="nav-link" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i> Leave Management</div>
+      <div class="nav-link" onclick="window.location='salary.html'"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
     </div>
-    <div class="nav-section"><div class="nav-section-title">Operations</div><div class="nav-link" data-module="store" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store</div></div>
-    <div class="nav-section"><div class="nav-section-title">Analytics</div><div class="nav-link" data-module="analytics" onclick="window.location='analytics.html'"><i class="fas fa-chart-line"></i> Analytics</div><div class="nav-link" data-module="teams" onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div></div>
-    <div class="nav-section"><div class="nav-section-title">System</div><div class="nav-link" data-module="users" onclick="window.location='users.html'"><i class="fas fa-user-shield"></i> User Management</div><div class="nav-link" data-module="settings" onclick="window.location='index.html#settings'"><i class="fas fa-sliders"></i> Settings</div><div class="nav-link" data-module="profile" onclick="window.location='index.html#profile'"><i class="fas fa-user-circle"></i> My Profile</div><div class="nav-link" onclick="Auth.logout()"><i class="fas fa-power-off"></i> Logout</div></div>
+    <div class="nav-section">
+      <div class="nav-section-title">Operations</div>
+      <div class="nav-link" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Analytics & Teams</div>
+      <div class="nav-link" onclick="window.location='analytics.html'"><i class="fas fa-chart-line"></i> Analytics</div>
+      <div class="nav-link" onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-sliders"></i> Settings</div>
+    </div>
   </div>
-  <div class="sidebar-footer"><div class="user-avatar" id="sidebarAvatar">U</div><div class="user-info"><h4 id="sidebarName">User</h4><span><span class="online-dot"></span> <span class="badge-role">Role</span></span></div></div>
+  <div class="sidebar-footer">
+    <div class="user-avatar" id="sidebarAvatar">AT</div>
+    <div class="user-info"><h4 id="sidebarName">Aditya Tomar</h4><span><span class="online-dot"></span><span id="sidebarRole"> Super Admin</span></span></div>
+  </div>
 </nav>
+
 <div class="main-content">
   <header class="top-header">
-    <div class="header-left"><button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button><div class="page-title"><h1>Gate Pass</h1><p>Track exits, early going & returns</p></div></div>
-    <div class="header-right"><div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock"></span></div><div class="header-avatar" id="headerAvatar" onclick="window.location='index.html#profile'">U</div></div>
-  </header>
-  <div class="page-content">
-    <div class="stat-cards">
-      <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-door-open"></i></div><div class="stat-number" id="st-outside">0</div><div class="stat-label">Outside</div></div>
-      <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-door-closed"></i></div><div class="stat-number" id="st-returned">0</div><div class="stat-label">Returned Today</div></div>
-      <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-passport"></i></div><div class="stat-number" id="st-total">0</div><div class="stat-label">Total Today</div></div>
-      <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-clock-rotate-left"></i></div><div class="stat-number" id="st-early">0</div><div class="stat-label">Early Going</div></div>
+    <div class="header-left">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="page-title"><h1>Gate Pass</h1><p>Track exits, early going & monthly summary</p></div>
     </div>
+    <div class="header-right">
+      <div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock"></span></div>
+      <button class="btn btn-outline btn-sm" onclick="refreshAll()"><i class="fas fa-rotate"></i> Refresh</button>
+      <div class="header-avatar" id="headerAvatar">AT</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <!-- Stats -->
+    <div class="stat-cards">
+      <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-door-open"></i></div><div class="stat-number" id="st-outside">0</div><div class="stat-label">Currently Outside</div></div>
+      <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-door-closed"></i></div><div class="stat-number" id="st-returned">0</div><div class="stat-label">Returned Today</div></div>
+      <div class="stat-card rose"><div class="stat-icon rose"><i class="fas fa-passport"></i></div><div class="stat-number" id="st-total">0</div><div class="stat-label">Total Today</div></div>
+      <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-clock-rotate-left"></i></div><div class="stat-number" id="st-earlyTotal">0</div><div class="stat-label">Total Early Today</div></div>
+    </div>
+
     <div class="grid-1-2">
+      <!-- Issue Form -->
       <div class="form-card">
         <div class="form-card-title"><i class="fas fa-plus-circle"></i> Issue New Gate Pass</div>
-        <div class="form-group mb-16"><label>Employee *</label><select id="gp_emp" onchange="onEmpChange()"><option value="">Select employee...</option></select></div>
-        <div id="gp_strip" style="display:none;background:var(--gray-50);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:14px;font-size:12.5px;border:1px solid var(--gray-200)"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><div><span style="color:var(--gray-500)">Dept:</span> <strong id="gp_dept">—</strong></div><div><span style="color:var(--gray-500)">Shift:</span> <strong id="gp_shift">—</strong></div><div><span style="color:var(--gray-500)">Phone:</span> <strong id="gp_phone" class="font-mono">—</strong></div><div><span style="color:var(--gray-500)">Month:</span> <strong id="gp_monthly">0</strong></div></div></div>
-        <div class="form-grid form-grid-2" style="gap:12px;margin-bottom:14px"><div class="form-group"><label>Date *</label><input type="date" id="gp_date"></div><div class="form-group"><label>Out Time *</label><input type="time" id="gp_outTime" onchange="calcEarly()"></div></div>
-        <div class="form-group mb-16"><label>Purpose *</label><select id="gp_purpose" onchange="checkOther()"><option value="">Select</option><option>Personal Work</option><option>Company Work</option><option>Medical Emergency</option><option>Doctor Visit</option><option>Bank Work</option><option>Family Emergency</option><option>Government Work</option><option>Other</option></select></div>
-        <div class="form-group mb-16" id="gp_otherWrap" style="display:none"><label>Other Reason</label><input type="text" id="gp_otherText"></div>
-        <div class="form-group mb-16"><label>Expected Return</label><input type="time" id="gp_expectedReturn"></div>
-        <div class="early-box" id="gp_earlyBox"><div style="display:flex;align-items:center;gap:10px"><i class="fas fa-clock" style="color:#b45309;font-size:18px"></i><div><div style="font-size:22px;font-weight:800;color:#92400e" id="gp_earlyVal">—</div><div style="font-size:12px;color:#b45309">Early from shift end (<span id="gp_shiftEnd">—</span>)</div></div></div></div>
-        <button class="btn btn-primary btn-full mt-16" onclick="issuePass()"><i class="fas fa-paper-plane"></i> Issue Pass</button>
+        <div class="form-group mb-16">
+          <label>Employee *</label>
+          <select id="gp_emp" onchange="onEmpChange()">
+            <option value="">Loading employees...</option>
+          </select>
+        </div>
+        <div id="gp_strip" style="display:none;background:var(--gray-50);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:14px;font-size:12.5px;border:1px solid var(--gray-200)">
+          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">
+            <div><span style="color:var(--gray-500)">Dept:</span> <strong id="gp_dept">—</strong></div>
+            <div><span style="color:var(--gray-500)">Shift:</span> <strong id="gp_shift">—</strong></div>
+            <div><span style="color:var(--gray-500)">Phone:</span> <strong id="gp_phone" class="font-mono">—</strong></div>
+            <div><span style="color:var(--gray-500)">This month:</span> <strong id="gp_monthly" style="color:var(--danger)">0 passes</strong></div>
+          </div>
+        </div>
+        <div class="form-grid form-grid-2" style="gap:12px;margin-bottom:14px">
+          <div class="form-group"><label>Date *</label><input type="date" id="gp_date"></div>
+          <div class="form-group"><label>Out Time *</label><input type="time" id="gp_outTime" onchange="calcEarly()"></div>
+        </div>
+        <div class="form-group mb-16">
+          <label>Purpose *</label>
+          <select id="gp_purpose" onchange="checkOther()">
+            <option value="">Select purpose...</option>
+            <option>Personal Work</option>
+            <option>Company Work</option>
+            <option>Medical Emergency</option>
+            <option>Doctor Visit</option>
+            <option>Bank Work</option>
+            <option>Family Emergency</option>
+            <option>Government Work</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group mb-14" id="gp_otherWrap" style="display:none">
+          <label>Specify Reason</label>
+          <input type="text" id="gp_otherText" placeholder="Enter custom reason...">
+        </div>
+        <div class="form-group mb-14">
+          <label>Expected Return Time</label>
+          <input type="time" id="gp_expectedReturn">
+        </div>
+
+        <!-- Early box -->
+        <div class="early-box" id="gp_earlyBox">
+          <div style="display:flex;align-items:center;gap:10px">
+            <i class="fas fa-clock" style="color:#b45309;font-size:18px"></i>
+            <div><div class="ev" id="gp_earlyVal">—</div><div class="el">Early from shift end (<span id="gp_shiftEnd">—</span>)</div></div>
+          </div>
+        </div>
+        <!-- On-time box -->
+        <div class="on-time-box" id="gp_onTimeBox">
+          <div style="display:flex;align-items:center;gap:10px">
+            <i class="fas fa-check-circle" style="color:var(--success);font-size:18px"></i>
+            <div style="font-weight:700;color:var(--success)">Going after shift end — No early deduction</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full mt-16" onclick="issuePass()">
+          <i class="fas fa-paper-plane"></i> Issue Gate Pass
+        </button>
+        <div style="margin-top:8px;text-align:center"><span id="sheetStatus" class="sheet-status"></span></div>
       </div>
+
+      <!-- Live Tracking -->
       <div class="table-card" style="margin-bottom:0">
-        <div class="table-header"><h3><i class="fas fa-location-dot"></i> Live Tracking</h3><span class="live-badge"><i class="fas fa-circle pulse" style="font-size:6px"></i> Live</span></div>
-        <div class="table-wrapper"><table><thead><tr><th>Employee</th><th>Out</th><th>Purpose</th><th>Early</th><th>Status</th><th>Return</th></tr></thead><tbody id="gpLiveBody"><tr><td colspan="6" class="table-empty">No passes</td></tr></tbody></table></div>
+        <div class="table-header">
+          <h3><i class="fas fa-location-dot"></i> Live Tracking — Today</h3>
+          <span class="live-badge"><i class="fas fa-circle pulse" style="font-size:6px"></i> Live</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Employee</th><th>Out</th><th>Purpose</th><th>Early By</th><th>Status</th><th>Return</th></tr></thead>
+            <tbody id="gpLiveBody">
+              <tr><td colspan="6" class="table-empty"><i class="fas fa-spinner spin"></i><p>Loading...</p></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+
+    <!-- Return Section -->
     <div class="form-card mt-24" id="gp_returnSection" style="display:none">
-      <div class="form-card-title"><i class="fas fa-arrow-right-to-bracket" style="color:var(--success)"></i> Record Return</div>
-      <div class="form-row" style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap">
-        <div class="form-group" style="margin:0"><label>Employee</label><select id="gp_returnEmp"></select></div>
-        <div class="form-group" style="margin:0"><label>Return Time</label><input type="time" id="gp_returnTime"></div>
-        <div class="form-group" style="margin:0"><label>&nbsp;</label><button class="btn btn-success" onclick="recordReturn()"><i class="fas fa-check-circle"></i> Mark Returned</button></div>
+      <div class="form-card-title"><i class="fas fa-arrow-right-to-bracket" style="color:var(--success)"></i> Record Return Time</div>
+      <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:200px"><label>Employee (Currently Outside)</label>
+          <select id="gp_returnEmp"></select>
+        </div>
+        <div class="form-group"><label>Actual In Time *</label><input type="time" id="gp_returnTime"></div>
+        <button class="btn btn-success" onclick="recordReturn()"><i class="fas fa-check-circle"></i> Mark Returned</button>
       </div>
     </div>
+
+    <!-- All Passes Table -->
     <div class="table-card mt-24">
-      <div class="table-header"><h3><i class="fas fa-list-check"></i> All Passes</h3><div style="display:flex;gap:10px"><input type="date" id="gp_filterDate" style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px" onchange="renderAll()"><button class="btn btn-outline btn-sm" onclick="exportGP()"><i class="fas fa-download"></i></button></div></div>
-      <div class="table-wrapper"><table><thead><tr><th>Date</th><th>Employee</th><th>Dept</th><th>Out</th><th>Return</th><th>Duration</th><th>Early</th><th>Purpose</th><th>Status</th></tr></thead><tbody id="gpAllBody"><tr><td colspan="9" class="table-empty">No records</td></tr></tbody></table></div>
+      <div class="table-header">
+        <h3><i class="fas fa-list-check"></i> All Gate Passes</h3>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input type="date" id="gp_filterDate" style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none" onchange="renderAll()">
+          <button class="btn btn-outline btn-sm" onclick="exportGP()"><i class="fas fa-download"></i> Export</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Date</th><th>Employee</th><th>Dept</th><th>Out</th><th>Return</th><th>Duration</th><th>Early By</th><th>Purpose</th><th>Status</th></tr></thead>
+          <tbody id="gpAllBody"><tr><td colspan="9" class="table-empty"><i class="fas fa-spinner spin"></i><p>Loading...</p></td></tr></tbody>
+        </table>
+      </div>
     </div>
+
+    <!-- Monthly Summary -->
     <div class="table-card mt-24">
-      <div class="table-header"><h3><i class="fas fa-calendar-alt"></i> Monthly Summary</h3><select id="gp_summaryMonth" style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px" onchange="renderSummary()"></select></div>
-      <div class="table-wrapper"><table><thead><tr><th>Employee</th><th>Dept</th><th>Shift</th><th>Passes</th><th>Total Early</th><th>3-HR Grace</th><th>Excess</th></tr></thead><tbody id="gpSummaryBody"><tr><td colspan="7" class="table-empty">No data</td></tr></tbody></table></div>
+      <div class="table-header">
+        <h3><i class="fas fa-calendar-alt"></i> Monthly Summary</h3>
+        <select id="gp_summaryMonth" style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none" onchange="renderSummary()"></select>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Employee</th><th>Dept</th><th>Shift End</th><th>Passes</th><th>Total Early</th><th>3-HR Grace Used</th><th>Excess (Deductible)</th></tr></thead>
+          <tbody id="gpSummaryBody"><tr><td colspan="7" class="table-empty"><i class="fas fa-chart-bar"></i><p>Select month to view</p></td></tr></tbody>
+        </table>
+      </div>
     </div>
-    <div class="app-footer"><div class="credit-text">House of Panchhi HR Pro · <span class="rainbow-text">Crafted with ❤️ by Aditya Tomar</span></div></div>
+
+    <div style="text-align:center;padding:16px;margin-top:12px;border-top:1px solid var(--gray-100)">
+      <span style="font-size:12px;color:var(--gray-400);font-weight:600">House of Panchhi HR &nbsp;·&nbsp; </span>
+      <span class="credit-name">Crafted with ❤️ by Aditya Tomar</span>
+    </div>
   </div>
 </div>
 </div>
+
 <script src="assets/js/app.js"></script>
 <script>
-let employees = [], gatepasses = [];
-window.addEventListener('load', () => { loadData(); const today = todayStr(); document.getElementById('gp_date').value = today; document.getElementById('gp_date').max = today; document.getElementById('gp_filterDate').value = today; document.getElementById('gp_filterDate').max = today; populateMonth(); });
-async function loadData() { employees = await GSheet.read('Employees'); gatepasses = await GSheet.read('GatePass'); populateEmp(); renderStats(); renderLive(); renderAll(); renderSummary(); }
-function populateEmp() { const sel = document.getElementById('gp_emp'); sel.innerHTML = '<option value="">Select employee...</option>'; employees.filter(e => e.Status === 'ACTIVE').forEach(e => sel.innerHTML += `<option value="${e.ID}">${e['E-Code']} — ${e['Full Name']}</option>`); }
-function populateMonth() { const sel = document.getElementById('gp_summaryMonth'); sel.innerHTML = ''; for (let i = 0; i < 6; i++) { const d = new Date(); d.setMonth(d.getMonth() - i); const val = d.toISOString().slice(0, 7); sel.innerHTML += `<option value="${val}"${i === 0 ? ' selected' : ''}>${d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</option>`; } }
-function onEmpChange() { const id = document.getElementById('gp_emp').value; const emp = employees.find(e => e.ID === id); const strip = document.getElementById('gp_strip'); if (!emp) { strip.style.display = 'none'; hideEarly(); return; } strip.style.display = 'block'; document.getElementById('gp_dept').textContent = emp.Department || '—'; document.getElementById('gp_phone').textContent = emp.Mobile || '—'; document.getElementById('gp_shift').textContent = getShiftLabel(emp.Shift); const month = new Date().toISOString().slice(0, 7); const cnt = gatepasses.filter(g => g['E-Code'] === emp['E-Code'] && (g.Date || '').startsWith(month)).length; document.getElementById('gp_monthly').textContent = cnt + ' passes'; calcEarly(); }
-function calcEarly() { const id = document.getElementById('gp_emp').value; const out = document.getElementById('gp_outTime').value; const emp = employees.find(e => e.ID === id); const box = document.getElementById('gp_earlyBox'); if (!emp || !out || !emp.Shift) { hideEarly(); return; } const shiftEnd = emp.Shift.split('-')[1]; if (!shiftEnd) { hideEarly(); return; } document.getElementById('gp_shiftEnd').textContent = formatTime(shiftEnd); const diff = timeDiffMinutes(out, shiftEnd); box.style.display = 'block'; if (diff > 0) { document.getElementById('gp_earlyVal').textContent = minutesToHHMM(diff); } else { document.getElementById('gp_earlyVal').textContent = 'No early'; } }
-function hideEarly() { document.getElementById('gp_earlyBox').style.display = 'none'; }
-function checkOther() { document.getElementById('gp_otherWrap').style.display = document.getElementById('gp_purpose').value === 'Other' ? 'block' : 'none'; }
-function getShiftLabel(s) { const m = { '09:00-18:00': '9AM-6PM', '10:00-19:00': '10AM-7PM', '08:00-17:00': '8AM-5PM', '11:00-20:00': '11AM-8PM' }; return m[s] || s || '—'; }
-async function issuePass() { const empId = document.getElementById('gp_emp').value; const date = document.getElementById('gp_date').value; const out = document.getElementById('gp_outTime').value; const purpose = document.getElementById('gp_purpose').value; if (!empId || !date || !out || !purpose) { showToast('error', 'Required', 'Fill all fields'); return; } const emp = employees.find(e => e.ID === empId); if (!emp) return; const shiftEnd = emp.Shift ? emp.Shift.split('-')[1] : null; const early = shiftEnd ? Math.max(0, timeDiffMinutes(out, shiftEnd)) : 0; const gp = { ID: genId('GP'), Date: date, 'E-Code': emp['E-Code'], Name: emp['Full Name'], Department: emp.Department, Mobile: emp.Mobile, Shift: emp.Shift, 'Shift End': shiftEnd, 'Out Time': out, 'Return Time': '', 'Expected Return': document.getElementById('gp_expectedReturn').value || '', Purpose: purpose === 'Other' ? document.getElementById('gp_otherText').value : purpose, 'Early Min': early, 'Duration Min': 0, Status: 'OUT' }; await GSheet.send('GatePass', gp); await logActivity('Issued gate pass', 'gatepass', `${emp['Full Name']} — ${out}`); await loadData(); resetForm(); showToast('success', 'Pass Issued', `${emp['Full Name']} — Out ${formatTime(out)}`); }
-function resetForm() { document.getElementById('gp_emp').value = ''; document.getElementById('gp_outTime').value = ''; document.getElementById('gp_purpose').value = ''; document.getElementById('gp_otherText').value = ''; document.getElementById('gp_otherWrap').style.display = 'none'; document.getElementById('gp_expectedReturn').value = ''; document.getElementById('gp_strip').style.display = 'none'; hideEarly(); }
-async function recordReturn() { const id = document.getElementById('gp_returnEmp').value; const ret = document.getElementById('gp_returnTime').value; if (!id || !ret) { showToast('error', 'Required', 'Select pass and time'); return; } const gp = gatepasses.find(g => g.ID === id); if (!gp) return; gp['Return Time'] = ret; gp.Status = 'RETURNED'; gp['Duration Min'] = Math.max(0, timeDiffMinutes(gp['Out Time'], ret)); await GSheet.send('GatePass', gp); await logActivity('Recorded return', 'gatepass', `${gp.Name} — ${ret}`); document.getElementById('gp_returnTime').value = ''; await loadData(); showToast('success', 'Returned', `${gp.Name} returned`); }
-function renderStats() { const today = todayStr(); const tp = gatepasses.filter(g => g.Date === today); document.getElementById('st-outside').textContent = tp.filter(g => g.Status === 'OUT').length; document.getElementById('st-returned').textContent = tp.filter(g => g.Status === 'RETURNED').length; document.getElementById('st-total').textContent = tp.length; document.getElementById('st-early').textContent = minutesToHHMM(tp.reduce((s, g) => s + (Number(g['Early Min']) || 0), 0)); const outside = tp.filter(g => g.Status === 'OUT'); const rs = document.getElementById('gp_returnSection'); const re = document.getElementById('gp_returnEmp'); if (outside.length) { rs.style.display = 'block'; re.innerHTML = '<option value="">Select...</option>'; outside.forEach(g => re.innerHTML += `<option value="${g.ID}">${g.Name} — Out ${formatTime(g['Out Time'])}</option>`); } else rs.style.display = 'none'; }
-function renderLive() { const today = todayStr(); const tp = gatepasses.filter(g => g.Date === today); const body = document.getElementById('gpLiveBody'); if (!tp.length) { body.innerHTML = '<tr><td colspan="6" class="table-empty">No passes today</td></tr>'; return; } body.innerHTML = [...tp].reverse().map(g => `<tr><td><div style="font-weight:700">${g.Name}</div><div class="font-mono" style="font-size:10.5px;color:var(--gray-400)">${g['E-Code']}</div></td><td class="font-mono">${formatTime(g['Out Time'])}</td><td style="font-size:12.5px">${g.Purpose}</td><td>${g['Early Min'] > 0 ? `<span style="color:var(--danger);font-weight:700">${minutesToHHMM(g['Early Min'])}</span>` : '<span style="color:var(--success)">On time</span>'}</td><td><span class="badge badge-${g.Status === 'OUT' ? 'amber' : 'green'}">${g.Status}</span></td><td class="font-mono">${g['Return Time'] ? formatTime(g['Return Time']) : '<span style="color:var(--gray-400)">Awaited</span>'}</td></tr>`).join(''); }
-function renderAll() { const date = document.getElementById('gp_filterDate')?.value || todayStr(); const data = gatepasses.filter(g => g.Date === date); const body = document.getElementById('gpAllBody'); if (!data.length) { body.innerHTML = '<tr><td colspan="9" class="table-empty">No records</td></tr>'; return; } body.innerHTML = data.map(g => `<tr><td style="font-size:12px">${formatDate(g.Date)}</td><td><div style="font-weight:700">${g.Name}</div><div class="font-mono" style="font-size:10.5px;color:var(--gray-400)">${g['E-Code']}</div></td><td style="font-size:12px">${g.Department}</td><td class="font-mono">${formatTime(g['Out Time'])}</td><td class="font-mono">${g['Return Time'] ? formatTime(g['Return Time']) : '—'}</td><td>${g['Duration Min'] != null ? minutesToHHMM(g['Duration Min']) : '—'}</td><td>${g['Early Min'] > 0 ? `<span style="color:var(--danger);font-weight:700">${minutesToHHMM(g['Early Min'])}</span>` : '—'}</td><td style="font-size:12.5px">${g.Purpose}</td><td><span class="badge badge-${g.Status === 'OUT' ? 'amber' : 'green'}">${g.Status}</span></td></tr>`).join(''); }
-function renderSummary() { const month = document.getElementById('gp_summaryMonth')?.value || new Date().toISOString().slice(0, 7); const passes = gatepasses.filter(g => (g.Date || '').startsWith(month)); const body = document.getElementById('gpSummaryBody'); if (!passes.length) { body.innerHTML = '<tr><td colspan="7" class="table-empty">No data</td></tr>'; return; } const map = {}; passes.forEach(g => { const emp = employees.find(e => e['E-Code'] === g['E-Code']); if (!map[g['E-Code']]) map[g['E-Code']] = { name: g.Name, dept: g.Department, shift: g.Shift, tagSenior: emp && emp['Senior Tag'] === 'YES', passes: 0, totalEarly: 0 }; map[g['E-Code']].passes++; map[g['E-Code']].totalEarly += Number(g['Early Min']) || 0; }); body.innerHTML = Object.values(map).map(e => { const grace = e.tagSenior ? 180 : 0; const used = Math.min(e.totalEarly, grace); const excess = Math.max(0, e.totalEarly - grace); return `<tr><td style="font-weight:700">${e.name}</td><td style="font-size:12.5px">${e.dept}</td><td style="font-size:12px">${getShiftLabel(e.shift)}</td><td><span style="font-weight:800;color:var(--primary)">${e.passes}</span><div class="monthly-bar"><div class="monthly-bar-fill" style="width:${Math.min(100, e.passes * 20)}%"></div></div></td><td style="font-weight:700;color:${e.totalEarly > 0 ? 'var(--danger)' : 'var(--success)'}">${minutesToHHMM(e.totalEarly) || '—'}</td><td>${e.tagSenior ? minutesToHHMM(used) + ' / 3 hr' : '—'}</td><td>${excess > 0 ? `<span style="color:var(--danger);font-weight:800">${minutesToHHMM(excess)}</span>` : '<span style="color:var(--success);font-weight:700">None</span>'}</td></tr>`; }).join(''); }
-function exportGP() { const date = document.getElementById('gp_filterDate')?.value || todayStr(); const data = gatepasses.filter(g => g.Date === date); if (!data.length) return; downloadCSV('GatePass_' + date + '.csv', data, ['Date', 'E-Code', 'Name', 'Department', 'Out Time', 'Return Time', 'Purpose', 'Early Min', 'Status']); }
+/* ══════════════════════════════════════
+   GATE PASS MODULE v2.0
+   Data source: Google Sheets
+   Per-employee shift from Sheets
+   3-hr grace for Senior staff
+══════════════════════════════════════ */
+
+let allEmps  = [];
+let allGP    = [];  // today's passes (in memory)
+let monthGP  = [];  // for summary
+
+/* ── Init ── */
+window.addEventListener('load', async () => {
+  if (!Auth.require()) return;
+  loadProfileInSidebar();
+  updateClock(); setInterval(updateClock, 1000);
+
+  const today = todayStr();
+  document.getElementById('gp_date').value       = today;
+  document.getElementById('gp_date').max         = today;
+  document.getElementById('gp_filterDate').value = today;
+  document.getElementById('gp_filterDate').max   = today;
+
+  populateMonthDrop();
+
+  // Load employees from Sheets
+  allEmps = await GSheet.read('Employees');
+  populateEmpDrop();
+
+  await refreshAll();
+});
+
+async function refreshAll() {
+  const date = document.getElementById('gp_filterDate').value || todayStr();
+  allGP = await GSheet.read('GatePass', 'date:' + date);
+  renderStats();
+  renderLive();
+  renderAll();
+  renderSummary();
+}
+
+/* ── Dropdowns ── */
+function populateEmpDrop() {
+  const sel = document.getElementById('gp_emp');
+  sel.innerHTML = '<option value="">Search & select employee...</option>';
+  allEmps.filter(e => e.status === 'ACTIVE')
+    .sort((a,b) => (a.fullname||'').localeCompare(b.fullname||''))
+    .forEach(e => {
+      sel.innerHTML += `<option value="${e.ecode}">${e.ecode} — ${e.fullname} (${e.department||''})</option>`;
+    });
+}
+
+function populateMonthDrop() {
+  const sel = document.getElementById('gp_summaryMonth');
+  sel.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d   = new Date(); d.setMonth(d.getMonth() - i);
+    const val = d.toISOString().slice(0, 7);
+    const lbl = d.toLocaleDateString('en-IN', { month:'long', year:'numeric' });
+    sel.innerHTML += `<option value="${val}"${i===0?' selected':''}>${lbl}</option>`;
+  }
+}
+
+/* ── Employee selection ── */
+function onEmpChange() {
+  const ecode = document.getElementById('gp_emp').value;
+  const emp   = allEmps.find(e => e.ecode === ecode);
+  const strip = document.getElementById('gp_strip');
+  if (!emp) { strip.style.display='none'; hideEarlyBoxes(); return; }
+
+  strip.style.display = 'block';
+  document.getElementById('gp_dept').textContent  = emp.department || '—';
+  document.getElementById('gp_phone').textContent = emp.mobile     || '—';
+
+  const shift = emp.shiftStart && emp.shiftEnd
+    ? `${formatTime(emp.shiftStart)} – ${formatTime(emp.shiftEnd)}`
+    : getShiftLabel(emp.shift);
+  document.getElementById('gp_shift').textContent = shift;
+
+  // Count this month's passes
+  const month = new Date().toISOString().slice(0, 7);
+  const cnt   = allGP.filter(g => g.ecode === ecode && (g.date||'').startsWith(month)).length;
+  document.getElementById('gp_monthly').textContent = `${cnt} pass${cnt!==1?'es':''} this month`;
+
+  calcEarly();
+}
+
+/* ── Early calculation (per-employee shift) ── */
+function calcEarly() {
+  const ecode   = document.getElementById('gp_emp').value;
+  const outTime = document.getElementById('gp_outTime').value;
+  const emp     = allEmps.find(e => e.ecode === ecode);
+  if (!emp || !outTime) { hideEarlyBoxes(); return; }
+
+  const shiftEnd = emp.shiftEnd || (emp.shift ? emp.shift.split('-')[1] : '19:00');
+  if (!shiftEnd) { hideEarlyBoxes(); return; }
+
+  document.getElementById('gp_shiftEnd').textContent = formatTime(shiftEnd);
+  const diff = timeDiffMinutes(outTime, shiftEnd); // positive = early
+
+  const earlyBox  = document.getElementById('gp_earlyBox');
+  const onTimeBox = document.getElementById('gp_onTimeBox');
+
+  if (diff > 0) {
+    earlyBox.style.display  = 'block';
+    onTimeBox.style.display = 'none';
+    document.getElementById('gp_earlyVal').textContent = minutesToHHMM(diff) + ' early';
+  } else {
+    earlyBox.style.display  = 'none';
+    onTimeBox.style.display = 'block';
+  }
+}
+
+function hideEarlyBoxes() {
+  document.getElementById('gp_earlyBox').style.display  = 'none';
+  document.getElementById('gp_onTimeBox').style.display = 'none';
+}
+
+function checkOther() {
+  document.getElementById('gp_otherWrap').style.display =
+    document.getElementById('gp_purpose').value === 'Other' ? 'block' : 'none';
+}
+
+/* ── Issue Pass ── */
+async function issuePass() {
+  const ecode   = document.getElementById('gp_emp').value;
+  const date    = document.getElementById('gp_date').value;
+  const outTime = document.getElementById('gp_outTime').value;
+  const purpose = document.getElementById('gp_purpose').value;
+
+  if (!ecode || !date || !outTime || !purpose) {
+    showToast('error','Required','Fill all required fields'); return;
+  }
+
+  const emp      = allEmps.find(e => e.ecode === ecode);
+  if (!emp) return;
+
+  const shiftEnd   = emp.shiftEnd || (emp.shift ? emp.shift.split('-')[1] : '19:00') || '19:00';
+  const earlyMin   = Math.max(0, timeDiffMinutes(outTime, shiftEnd));
+  const purposeFin = purpose === 'Other'
+    ? (document.getElementById('gp_otherText').value.trim() || 'Other')
+    : purpose;
+
+  const gp = {
+    id              : genId('GP'),
+    ecode           : emp.ecode,
+    empName         : emp.fullname,
+    department      : emp.department,
+    mobile          : emp.mobile,
+    shiftStart      : emp.shiftStart || '10:00',
+    shiftEnd        : shiftEnd,
+    date, outTime,
+    returnTime      : '',
+    expectedReturn  : document.getElementById('gp_expectedReturn').value || '',
+    purpose         : purposeFin,
+    earlyMinutes    : earlyMin,
+    durationMinutes : 0,
+    status          : 'OUT',
+  };
+
+  const result = await GSheet.send('GatePass_Issue', gp);
+  if (!result.success) { showToast('error','Failed',result.error||'Could not save'); return; }
+
+  // Reset form
+  document.getElementById('gp_emp').value            = '';
+  document.getElementById('gp_outTime').value        = '';
+  document.getElementById('gp_purpose').value        = '';
+  document.getElementById('gp_expectedReturn').value = '';
+  document.getElementById('gp_otherText').value      = '';
+  document.getElementById('gp_otherWrap').style.display = 'none';
+  document.getElementById('gp_strip').style.display  = 'none';
+  hideEarlyBoxes();
+
+  allGP.push(gp);
+  renderStats(); renderLive(); renderAll();
+  showToast('success','Gate Pass Issued!',
+    `${emp.fullname} — Out at ${formatTime(outTime)}${earlyMin>0?' ('+minutesToHHMM(earlyMin)+' early)':''}`);
+}
+
+/* ── Record Return ── */
+async function recordReturn() {
+  const gpId    = document.getElementById('gp_returnEmp').value;
+  const retTime = document.getElementById('gp_returnTime').value;
+  if (!gpId || !retTime) { showToast('error','Required','Select employee and return time'); return; }
+
+  const gp  = allGP.find(g => g.id === gpId);
+  if (!gp) return;
+
+  const duration = Math.max(0, timeDiffMinutes(gp.outTime, retTime));
+  const result   = await GSheet.send('GatePass_Return', {
+    id: gpId, returnTime: retTime, durationMinutes: duration
+  });
+  if (!result.success) { showToast('error','Failed','Could not update'); return; }
+
+  gp.returnTime      = retTime;
+  gp.durationMinutes = duration;
+  gp.status          = 'RETURNED';
+
+  document.getElementById('gp_returnTime').value = '';
+  renderStats(); renderLive(); renderAll();
+  showToast('success','Returned!',`${gp.empName} — Out for ${minutesToHHMM(duration)}`);
+}
+
+/* ── Stats ── */
+function renderStats() {
+  const today   = document.getElementById('gp_filterDate').value || todayStr();
+  const todayGP = allGP.filter(g => g.date === today);
+  const outside = todayGP.filter(g => g.status === 'OUT');
+
+  document.getElementById('st-outside').textContent  = outside.length;
+  document.getElementById('st-returned').textContent = todayGP.filter(g=>g.status==='RETURNED').length;
+  document.getElementById('st-total').textContent    = todayGP.length;
+  const totalEarly = todayGP.reduce((s,g)=>s+(g.earlyMinutes||0), 0);
+  document.getElementById('st-earlyTotal').textContent = totalEarly>0 ? minutesToHHMM(totalEarly) : '0';
+
+  // Return section
+  const rs = document.getElementById('gp_returnSection');
+  const re = document.getElementById('gp_returnEmp');
+  if (outside.length > 0) {
+    rs.style.display = 'block';
+    re.innerHTML = '<option value="">Select employee outside...</option>';
+    outside.forEach(g => {
+      re.innerHTML += `<option value="${g.id}">${g.empName} — Out ${formatTime(g.outTime)}</option>`;
+    });
+  } else {
+    rs.style.display = 'none';
+  }
+}
+
+/* ── Live Tracking ── */
+function renderLive() {
+  const today   = document.getElementById('gp_filterDate').value || todayStr();
+  const todayGP = [...allGP].filter(g=>g.date===today).reverse();
+  const body    = document.getElementById('gpLiveBody');
+
+  if (!todayGP.length) {
+    body.innerHTML = `<tr><td colspan="6" class="table-empty"><i class="fas fa-door-closed"></i><p>No passes today</p></td></tr>`;
+    return;
+  }
+  body.innerHTML = '';
+  todayGP.forEach(g => {
+    const isOut = g.status === 'OUT';
+    body.innerHTML += `<tr>
+      <td>
+        <div style="font-weight:700">${g.empName}</div>
+        <div class="font-mono" style="font-size:10.5px;color:var(--gray-400)">${g.ecode}</div>
+      </td>
+      <td class="font-mono">${formatTime(g.outTime)}</td>
+      <td style="font-size:12.5px">${g.purpose||'—'}</td>
+      <td>${g.earlyMinutes>0
+        ? `<span style="color:var(--danger);font-weight:700">${minutesToHHMM(g.earlyMinutes)}</span>`
+        : '<span style="color:var(--success);font-size:12px">After shift</span>'}</td>
+      <td><span class="badge badge-${isOut?'amber':'green'}">
+        ${isOut ? '<i class="fas fa-circle pulse" style="font-size:6px"></i> OUTSIDE' : '<i class="fas fa-check-circle"></i> RETURNED'}
+      </span></td>
+      <td class="font-mono">${g.returnTime ? formatTime(g.returnTime) : '<span style="color:var(--gray-400)">Awaited</span>'}</td>
+    </tr>`;
+  });
+}
+
+/* ── All Passes Table ── */
+function renderAll() {
+  const date = document.getElementById('gp_filterDate')?.value || todayStr();
+  const data = allGP.filter(g => g.date === date);
+  const body = document.getElementById('gpAllBody');
+
+  if (!data.length) {
+    body.innerHTML = `<tr><td colspan="9" class="table-empty"><i class="fas fa-inbox"></i><p>No passes for this date</p></td></tr>`;
+    return;
+  }
+  body.innerHTML = '';
+  data.forEach(g => {
+    body.innerHTML += `<tr>
+      <td style="font-size:12px">${formatDate(g.date)}</td>
+      <td>
+        <div style="font-weight:700">${g.empName}</div>
+        <div class="font-mono" style="font-size:10.5px;color:var(--gray-400)">${g.ecode}</div>
+      </td>
+      <td style="font-size:12px">${g.department||'—'}</td>
+      <td class="font-mono">${formatTime(g.outTime)}</td>
+      <td class="font-mono">${g.returnTime ? formatTime(g.returnTime) : '—'}</td>
+      <td>${g.durationMinutes ? minutesToHHMM(g.durationMinutes) : '—'}</td>
+      <td>${g.earlyMinutes>0
+        ? `<span style="color:var(--danger);font-weight:700">${minutesToHHMM(g.earlyMinutes)}</span>`
+        : '—'}</td>
+      <td style="font-size:12.5px">${g.purpose||'—'}</td>
+      <td><span class="badge badge-${g.status==='OUT'?'amber':'green'}">${g.status}</span></td>
+    </tr>`;
+  });
+}
+
+/* ── Monthly Summary (with 3-hr grace) ── */
+async function renderSummary() {
+  const month = document.getElementById('gp_summaryMonth')?.value || new Date().toISOString().slice(0,7);
+  const body  = document.getElementById('gpSummaryBody');
+  body.innerHTML = `<tr><td colspan="7" class="table-empty"><i class="fas fa-spinner spin"></i><p>Loading...</p></td></tr>`;
+
+  monthGP = await GSheet.read('GatePass', 'month:' + month);
+
+  if (!monthGP.length) {
+    body.innerHTML = `<tr><td colspan="7" class="table-empty"><i class="fas fa-chart-bar"></i><p>No gate passes in this month</p></td></tr>`;
+    return;
+  }
+
+  // Group by employee
+  const empMap = {};
+  monthGP.forEach(g => {
+    if (!empMap[g.ecode]) {
+      const emp = allEmps.find(e => e.ecode === g.ecode);
+      empMap[g.ecode] = {
+        name       : g.empName,
+        dept       : g.department,
+        shiftEnd   : g.shiftEnd || '19:00',
+        tagSenior  : emp?.tagSenior || false,
+        passes     : 0,
+        totalEarly : 0,
+      };
+    }
+    empMap[g.ecode].passes++;
+    empMap[g.ecode].totalEarly += (g.earlyMinutes || 0);
+  });
+
+  body.innerHTML = '';
+  Object.values(empMap)
+    .sort((a,b) => b.totalEarly - a.totalEarly)
+    .forEach(e => {
+      // 3-hr grace = 180 minutes for senior staff
+      const graceMins = e.tagSenior ? 180 : 0;
+      const used      = Math.min(e.totalEarly, graceMins);
+      const excess    = Math.max(0, e.totalEarly - graceMins);
+
+      body.innerHTML += `<tr>
+        <td>
+          <div style="font-weight:700">${e.name}</div>
+          ${e.tagSenior ? '<span class="emp-tag tag-senior" style="font-size:9px"><i class="fas fa-star" style="font-size:7px"></i> Senior</span>' : ''}
+        </td>
+        <td style="font-size:12.5px">${e.dept}</td>
+        <td class="font-mono" style="font-size:12px">${formatTime(e.shiftEnd)}</td>
+        <td>
+          <span style="font-weight:800;color:var(--primary)">${e.passes}</span>
+          <div class="monthly-bar" style="width:80px">
+            <div class="monthly-bar-fill" style="width:${Math.min(100,e.passes*20)}%"></div>
+          </div>
+        </td>
+        <td style="font-weight:700;color:${e.totalEarly>0?'var(--danger)':'var(--success)'}">
+          ${e.totalEarly>0 ? minutesToHHMM(e.totalEarly) : '—'}
+        </td>
+        <td>
+          ${e.tagSenior
+            ? `<span style="font-weight:700;color:var(--warning)">${minutesToHHMM(used)} / 3 hr</span>`
+            : '<span style="color:var(--gray-400);font-size:12px">Not eligible</span>'}
+        </td>
+        <td>
+          ${excess > 0
+            ? `<span style="color:var(--danger);font-weight:800">${minutesToHHMM(excess)}</span>
+               <div style="font-size:10.5px;color:var(--gray-400);margin-top:2px">Will be deducted</div>`
+            : '<span style="color:var(--success);font-weight:700">None</span>'}
+        </td>
+      </tr>`;
+    });
+}
+
+/* ── Export ── */
+function exportGP() {
+  const date = document.getElementById('gp_filterDate')?.value || todayStr();
+  const data = allGP.filter(g => g.date === date);
+  if (!data.length) { showToast('warning','No Data','No passes for this date'); return; }
+  downloadCSV(`GatePass_${date}.csv`, data,
+    ['date','ecode','empName','department','outTime','returnTime','durationMinutes','earlyMinutes','purpose','status']);
+}
 </script>
 </body>
 </html>
