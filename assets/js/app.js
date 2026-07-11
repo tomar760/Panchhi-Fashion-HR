@@ -1,46 +1,38 @@
 /* ============================================================
    HOUSE OF PANCHHI HR SOFTWARE v2.0
    app.js — Common Utilities + GSheet API + Auth System
-
-   WEB_APP_URL: https://script.google.com/macros/s/AKfycbxNL8Au4HugjloU0t7EC5U3RNdFLXF3A5PdB4hIDhw1yqQKksvurFoP9rV9zzzGRm7vYw/exec
+   CORS FIX: text/plain content type for GAS compatibility
 ============================================================ */
 
-/* ══════════════════════════════════════
-   GOOGLE SHEETS API  (replaces Store)
-══════════════════════════════════════ */
 const GSheet = {
-  WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbyV7WwE4twxT_YfmZFzydR4xFepGCXaDUGxtPLcTpdXxcdHWfmZPtMS52wJW8DlUmNZnA/exec',
+  WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbxNL8Au4HugjloU0t7EC5U3RNdFLXF3A5PdB4hIDhw1yqQKksvurFoP9rV9zzzGRm7vYw/exec',
 
-  /* ── POST: save / update / delete ──────────────────────── */
+  /* ── POST — text/plain avoids CORS preflight ── */
   async send(action, data) {
     this._showStatus('loading', '⏳ Saving...');
     try {
-      const params = new URLSearchParams();
-      params.append('action', action);
-      params.append('data',   JSON.stringify(data || {}));
-
-      const res  = await fetch(this.WEB_APP_URL, {
+      const res = await fetch(this.WEB_APP_URL, {
         method   : 'POST',
-        body     : params,
+        headers  : { 'Content-Type': 'text/plain;charset=utf-8' },
+        body     : JSON.stringify({ action, data: data || {} }),
         redirect : 'follow',
       });
-      const json = await res.json().catch(() => ({ success: false, error: 'Bad response' }));
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); }
+      catch(e) { json = { success: false, error: 'Parse error: ' + text.slice(0,100) }; }
 
-      if (json.success) {
-        this._showStatus('success', '✓ Saved');
-      } else {
-        this._showStatus('error', '✗ ' + (json.error || 'Save failed'));
-        console.error('[GSheet.send]', action, json.error);
-      }
+      if (json.success) this._showStatus('success', '✓ Saved');
+      else this._showStatus('error', '✗ ' + (json.error || 'Save failed'));
       return json;
     } catch (err) {
       this._showStatus('error', '✗ Network error');
-      console.error('[GSheet.send] Network error:', err);
+      console.error('[GSheet.send] Error:', err);
       return { success: false, error: err.message };
     }
   },
 
-  /* ── POST batch: large arrays in chunks ────────────────── */
+  /* ── POST batch: large arrays in chunks ── */
   async sendBatch(action, dataArr, chunkSize = 50) {
     if (!Array.isArray(dataArr) || !dataArr.length) return { success: true, count: 0 };
     let done = 0;
@@ -56,32 +48,34 @@ const GSheet = {
     return { success: true, count: done };
   },
 
-  /* ── GET: read data from Sheets ────────────────────────── */
+  /* ── GET — read data from Sheets ── */
   async read(sheet, filter = '') {
     try {
       let url = this.WEB_APP_URL + '?sheet=' + encodeURIComponent(sheet);
       if (filter) url += '&filter=' + encodeURIComponent(filter);
       const res  = await fetch(url, { redirect: 'follow' });
-      const json = await res.json().catch(() => ({ success: false, data: [] }));
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); }
+      catch(e) { return []; }
       if (!json.success) console.error('[GSheet.read]', sheet, json.error);
       return json.data || [];
     } catch (err) {
-      console.error('[GSheet.read] Network error:', err);
+      console.error('[GSheet.read] Error:', err);
       return [];
     }
   },
 
-  /* ── Upload file to Google Drive ───────────────────────── */
+  /* ── Upload file to Google Drive ── */
   async uploadFile(file, subFolder = 'Store Attachments') {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = async (e) => {
-        const base64 = e.target.result;
         const result = await this.send('Store_Upload', {
-          base64     : base64,
-          fileName   : file.name,
-          mimeType   : file.type || 'application/octet-stream',
-          subFolder  : subFolder,
+          base64    : e.target.result,
+          fileName  : file.name,
+          mimeType  : file.type || 'application/octet-stream',
+          subFolder : subFolder,
         });
         resolve(result);
       };
@@ -90,7 +84,7 @@ const GSheet = {
     });
   },
 
-  /* ── Status indicator (shows near save buttons) ────────── */
+  /* ── Status indicator ── */
   _showStatus(type, msg) {
     ['sheetStatus', 'sheetStatus2'].forEach(id => {
       const el = document.getElementById(id);
@@ -105,12 +99,11 @@ const GSheet = {
 };
 
 /* ══════════════════════════════════════
-   AUTH SYSTEM  (multi-user login)
+   AUTH SYSTEM
 ══════════════════════════════════════ */
 const Auth = {
   _KEY : 'phr_session',
 
-  /* Login — calls Apps Script, stores session */
   async login(username, password) {
     const result = await GSheet.send('Auth_Login', { username, password });
     if (result.success && result.user) {
@@ -125,7 +118,6 @@ const Auth = {
     window.location.href = 'index.html';
   },
 
-  /* Get current logged-in user */
   getUser() {
     try {
       const raw = sessionStorage.getItem(this._KEY);
@@ -133,7 +125,6 @@ const Auth = {
     } catch { return null; }
   },
 
-  /* Check if user has at least this role */
   hasRole(requiredRole) {
     const user = this.getUser();
     if (!user) return false;
@@ -141,16 +132,11 @@ const Auth = {
     return (levels[user.role] || 0) >= (levels[requiredRole] || 0);
   },
 
-  /* Redirect to login if not authenticated */
   require() {
-    if (!this.getUser()) {
-      window.location.href = 'index.html';
-      return false;
-    }
+    if (!this.getUser()) { window.location.href = 'index.html'; return false; }
     return true;
   },
 
-  /* Redirect if insufficient role */
   requireRole(role) {
     if (!this.require()) return false;
     if (!this.hasRole(role)) {
@@ -160,7 +146,6 @@ const Auth = {
     return true;
   },
 
-  /* Returns true if current user is view-only (Director) */
   isReadOnly() {
     const user = this.getUser();
     return user?.role === 'DIRECTOR';
@@ -168,9 +153,7 @@ const Auth = {
 };
 
 /* ══════════════════════════════════════
-   LEGACY Store — DEPRECATED
-   Kept only for backward compatibility
-   Use GSheet.read() and GSheet.send() instead
+   LEGACY Store (deprecated)
 ══════════════════════════════════════ */
 const Store = {
   get(key)        { try { return JSON.parse(localStorage.getItem('phr_' + key)) || []; } catch { return []; } },
@@ -192,12 +175,10 @@ function updateClock() {
   const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
   const el      = document.getElementById('liveClock');
   if (el) el.textContent = timeStr;
-
   const h        = now.getHours();
   const greeting = h < 12 ? 'Good Morning' : h < 17 ? 'Good Afternoon' : h < 21 ? 'Good Evening' : 'Good Night';
   const user     = Auth.getUser();
   const name     = user?.name || 'Admin';
-
   const gEl = document.getElementById('greetingText');
   const dEl = document.getElementById('greetingDate');
   if (gEl) gEl.textContent = `${greeting}, ${name}! 👋`;
@@ -222,58 +203,40 @@ function toggleSubNav(el) {
   document.querySelectorAll('.nav-link.has-sub').forEach(l => l.classList.remove('open'));
   if (!isOpen && sub) { sub.classList.add('open'); el.classList.add('open'); }
 }
-
-/* Populate sidebar with current user info */
 function loadProfileInSidebar() {
   const user = Auth.getUser();
   if (!user) return;
   const av = document.getElementById('sidebarAvatar');
   const nm = document.getElementById('sidebarName');
   const rl = document.getElementById('sidebarRole');
-  if (av) av.textContent  = initials(user.name);
-  if (nm) nm.textContent  = user.name;
-  if (rl) rl.textContent  = getRoleLabel(user.role);
-  // Header avatar
+  if (av) av.textContent = initials(user.name);
+  if (nm) nm.textContent = user.name;
+  if (rl) rl.textContent = getRoleLabel(user.role);
   const ha = document.getElementById('headerAvatar');
-  if (ha) ha.textContent  = initials(user.name);
+  if (ha) ha.textContent = initials(user.name);
 }
-
 function getRoleLabel(role) {
-  const map = { SUPER_ADMIN: 'Super Admin', DIRECTOR: 'Director', HR_EXEC: 'HR Executive', STORE_MGR: 'Store Manager' };
-  return map[role] || role;
+  return { SUPER_ADMIN:'Super Admin', DIRECTOR:'Director', HR_EXEC:'HR Executive', STORE_MGR:'Store Manager' }[role] || role;
 }
 
 /* ══════════════════════════════════════
    TOAST NOTIFICATIONS
 ══════════════════════════════════════ */
-const TOAST_ICONS = {
-  success : 'fas fa-check-circle',
-  error   : 'fas fa-times-circle',
-  warning : 'fas fa-exclamation-triangle',
-  info    : 'fas fa-info-circle',
-};
-
-function showToast(type = 'info', title = '', message = '', duration = 3800) {
+const TOAST_ICONS = { success:'fas fa-check-circle', error:'fas fa-times-circle', warning:'fas fa-exclamation-triangle', info:'fas fa-info-circle' };
+function showToast(type='info', title='', message='', duration=3800) {
   let container = document.getElementById('toastContainer');
   if (!container) {
-    container    = document.createElement('div');
+    container = document.createElement('div');
     container.id = 'toastContainer';
     container.className = 'toast-container';
     document.body.appendChild(container);
   }
   const toast   = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `
-    <div class="toast-icon"><i class="${TOAST_ICONS[type] || 'fas fa-bell'}"></i></div>
-    <div class="toast-body">
-      <h4>${title}</h4>
-      ${message ? `<p>${message}</p>` : ''}
-    </div>`;
+  toast.innerHTML = `<div class="toast-icon"><i class="${TOAST_ICONS[type]||'fas fa-bell'}"></i></div><div class="toast-body"><h4>${title}</h4>${message?`<p>${message}</p>`:''}</div>`;
   container.appendChild(toast);
   setTimeout(() => {
-    toast.style.opacity   = '0';
-    toast.style.transform = 'translateX(110px)';
-    toast.style.transition= 'all .3s ease';
+    toast.style.opacity='0'; toast.style.transform='translateX(110px)'; toast.style.transition='all .3s ease';
     setTimeout(() => toast.remove(), 320);
   }, duration);
 }
@@ -281,45 +244,27 @@ function showToast(type = 'info', title = '', message = '', duration = 3800) {
 /* ══════════════════════════════════════
    MODALS
 ══════════════════════════════════════ */
-function showModal(id) {
-  const m = document.getElementById('modal-' + id);
-  if (m) { m.classList.add('show'); m.scrollTop = 0; }
-}
-function closeModal(id) {
-  document.getElementById('modal-' + id)?.classList.remove('show');
-}
-
-document.addEventListener('click', e => {
-  if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('show');
-});
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
-});
-
-/* ══════════════════════════════════════
-   MAINTENANCE MODAL
-══════════════════════════════════════ */
+function showModal(id) { const m=document.getElementById('modal-'+id); if(m){m.classList.add('show');m.scrollTop=0;} }
+function closeModal(id) { document.getElementById('modal-'+id)?.classList.remove('show'); }
+document.addEventListener('click', e => { if(e.target.classList.contains('modal-overlay')) e.target.classList.remove('show'); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay.show').forEach(m=>m.classList.remove('show')); });
 function showMaintenance(title, desc) {
-  const t = document.getElementById('maintenanceTitle');
-  const d = document.getElementById('maintenanceDesc');
-  const m = document.getElementById('maintenanceModal');
-  if (t) t.textContent = title;
-  if (d) d.textContent = desc || 'This module is being developed. Coming soon!';
-  if (m) m.classList.add('show');
+  const t=document.getElementById('maintenanceTitle');const d=document.getElementById('maintenanceDesc');const m=document.getElementById('maintenanceModal');
+  if(t)t.textContent=title;if(d)d.textContent=desc||'This module is being developed. Coming soon!';if(m)m.classList.add('show');
 }
 
 /* ══════════════════════════════════════
    BUTTON LOADING STATE
 ══════════════════════════════════════ */
-function btnLoading(btn, text = 'Processing...') {
+function btnLoading(btn, text='Processing...') {
   const orig = btn.innerHTML;
   btn.innerHTML = `<i class="fas fa-spinner spin"></i>&nbsp;${text}`;
   btn.disabled  = true;
-  return function done(successText = 'Done') {
+  return function done(successText='Done') {
     setTimeout(() => {
       btn.innerHTML = `<i class="fas fa-check"></i>&nbsp;${successText}`;
       btn.style.background = 'linear-gradient(135deg,#059669,#34d399)';
-      setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; btn.style.background = ''; }, 1000);
+      setTimeout(() => { btn.innerHTML=orig; btn.disabled=false; btn.style.background=''; }, 1000);
     }, 1400);
   };
 }
@@ -327,11 +272,11 @@ function btnLoading(btn, text = 'Processing...') {
 /* ══════════════════════════════════════
    SKELETON LOADER
 ══════════════════════════════════════ */
-function skeletonRows(tbody, cols = 5, rows = 5) {
-  if (!tbody) return;
-  tbody.innerHTML = Array.from({ length: rows }, () =>
-    `<tr>${Array.from({ length: cols }, () =>
-      `<td><div class="skeleton" style="height:14px;border-radius:6px;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite"></div></td>`
+function skeletonRows(tbody, cols=5, rows=5) {
+  if(!tbody) return;
+  tbody.innerHTML = Array.from({length:rows}, ()=>
+    `<tr>${Array.from({length:cols}, ()=>
+      `<td><div class="skeleton" style="height:14px;border-radius:6px"></div></td>`
     ).join('')}</tr>`
   ).join('');
 }
@@ -339,107 +284,71 @@ function skeletonRows(tbody, cols = 5, rows = 5) {
 /* ══════════════════════════════════════
    DATE & TIME HELPERS
 ══════════════════════════════════════ */
-function todayStr() {
-  return new Date().toISOString().split('T')[0];
-}
-function nowTimeStr() {
-  const n = new Date();
-  return n.toTimeString().slice(0, 5);
-}
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function nowTimeStr() { const n=new Date(); return n.toTimeString().slice(0,5); }
 function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d)) return dateStr;
-    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-  } catch { return dateStr; }
+  if(!dateStr) return '—';
+  try { const d=new Date(dateStr); if(isNaN(d)) return dateStr; return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+  catch { return dateStr; }
 }
 function formatTime(timeStr) {
-  if (!timeStr) return '—';
-  const [h, m] = timeStr.split(':').map(Number);
-  if (isNaN(h)) return timeStr;
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${ampm}`;
+  if(!timeStr) return '—';
+  const [h,m]=timeStr.split(':').map(Number);if(isNaN(h)) return timeStr;
+  const ampm=h>=12?'PM':'AM';return`${h%12||12}:${String(m).padStart(2,'0')} ${ampm}`;
 }
 function timeDiffMinutes(t1, t2) {
-  if (!t1 || !t2) return 0;
-  const [h1, m1] = t1.split(':').map(Number);
-  const [h2, m2] = t2.split(':').map(Number);
-  return (h2 * 60 + m2) - (h1 * 60 + m1);
+  if(!t1||!t2) return 0;
+  const [h1,m1]=t1.split(':').map(Number);const [h2,m2]=t2.split(':').map(Number);
+  return (h2*60+m2)-(h1*60+m1);
 }
 function minutesToHHMM(minutes) {
-  if (!minutes || minutes <= 0) return '0 min';
-  const h = Math.floor(Math.abs(minutes) / 60);
-  const m = Math.abs(minutes) % 60;
-  if (h === 0) return `${m} min`;
-  if (m === 0) return `${h} hr`;
-  return `${h} hr ${m} min`;
+  if(!minutes||minutes<=0) return '0 min';
+  const h=Math.floor(Math.abs(minutes)/60);const m=Math.abs(minutes)%60;
+  if(h===0) return`${m} min`;if(m===0) return`${h} hr`;return`${h} hr ${m} min`;
 }
-
-/* ══════════════════════════════════════
-   NUMBER FORMAT
-══════════════════════════════════════ */
 function formatINR(amount) {
-  if (amount === null || amount === undefined || amount === '') return '—';
-  return '₹' + Number(amount).toLocaleString('en-IN');
+  if(amount===null||amount===undefined||amount==='') return '—';
+  return '₹'+Number(amount).toLocaleString('en-IN');
 }
 
 /* ══════════════════════════════════════
    AVATAR HELPERS
 ══════════════════════════════════════ */
 const AVATAR_COLORS = [
-  'linear-gradient(135deg,#9d174d,#ec4899)',
-  'linear-gradient(135deg,#059669,#34d399)',
-  'linear-gradient(135deg,#1d4ed8,#60a5fa)',
-  'linear-gradient(135deg,#b45309,#fbbf24)',
-  'linear-gradient(135deg,#7e22ce,#a855f7)',
-  'linear-gradient(135deg,#0e7490,#22d3ee)',
-  'linear-gradient(135deg,#be123c,#fb7185)',
-  'linear-gradient(135deg,#166534,#4ade80)',
+  'linear-gradient(135deg,#9d174d,#ec4899)','linear-gradient(135deg,#059669,#34d399)',
+  'linear-gradient(135deg,#1d4ed8,#60a5fa)','linear-gradient(135deg,#b45309,#fbbf24)',
+  'linear-gradient(135deg,#7e22ce,#a855f7)','linear-gradient(135deg,#0e7490,#22d3ee)',
+  'linear-gradient(135deg,#be123c,#fb7185)','linear-gradient(135deg,#166534,#4ade80)',
 ];
-function avatarColor(name = '') {
-  let hash = 0;
-  for (const c of name) hash = c.charCodeAt(0) + ((hash << 5) - hash);
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-}
-function initials(name = '') {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return '?';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
+function avatarColor(name='') { let h=0;for(const c of name)h=c.charCodeAt(0)+((h<<5)-h);return AVATAR_COLORS[Math.abs(h)%AVATAR_COLORS.length]; }
+function initials(name='') { const p=name.trim().split(/\s+/).filter(Boolean);if(!p.length)return'?';if(p.length===1)return p[0].slice(0,2).toUpperCase();return(p[0][0]+p[p.length-1][0]).toUpperCase(); }
 
 /* ══════════════════════════════════════
    CSV DOWNLOAD
 ══════════════════════════════════════ */
 function downloadCSV(filename, rows, headers) {
-  const csv  = [
-    headers.join(','),
-    ...rows.map(r => headers.map(h => `"${(r[h] ?? '').toString().replace(/"/g, '""')}"`).join(','))
-  ].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
-  showToast('success', 'Downloaded', filename);
+  const csv=[headers.join(','),...rows.map(r=>headers.map(h=>`"${(r[h]??'').toString().replace(/"/g,'""')}"`).join(','))].join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+  showToast('success','Downloaded',filename);
 }
 
 /* ══════════════════════════════════════
    CONFIRM DIALOG
 ══════════════════════════════════════ */
-function confirmAction(message, onConfirm, type = 'danger') {
-  const modal  = document.getElementById('modal-confirm');
-  if (!modal) { if (confirm(message)) onConfirm(); return; }
-  const icons  = { danger: 'fas fa-trash-alt', warning: 'fas fa-exclamation-triangle', info: 'fas fa-question-circle' };
-  const iconEl = modal.querySelector('.modal-confirm-icon');
-  const iconI  = modal.querySelector('.modal-confirm-icon i');
-  const msgEl  = modal.querySelector('#confirmMsg, .modal-confirm p');
-  const okBtn  = modal.querySelector('.btn-confirm-ok');
-  if (iconEl) { iconEl.className = `modal-confirm-icon ${type}`; }
-  if (iconI ) { iconI.className  = icons[type] || icons.danger; }
-  if (msgEl ) { msgEl.textContent = message; }
-  if (okBtn ) { okBtn.onclick = () => { closeModal('confirm'); onConfirm(); }; }
+function confirmAction(message, onConfirm, type='danger') {
+  const modal=document.getElementById('modal-confirm');
+  if(!modal){if(confirm(message))onConfirm();return;}
+  const icons={danger:'fas fa-trash-alt',warning:'fas fa-exclamation-triangle',info:'fas fa-question-circle'};
+  const iconEl=modal.querySelector('.modal-confirm-icon');
+  const iconI=modal.querySelector('.modal-confirm-icon i');
+  const msgEl=modal.querySelector('#confirmMsg, .modal-confirm p');
+  const okBtn=modal.querySelector('.btn-confirm-ok');
+  if(iconEl)iconEl.className=`modal-confirm-icon ${type}`;
+  if(iconI)iconI.className=icons[type]||icons.danger;
+  if(msgEl)msgEl.textContent=message;
+  if(okBtn)okBtn.onclick=()=>{closeModal('confirm');onConfirm();};
   showModal('confirm');
 }
 
@@ -447,137 +356,77 @@ function confirmAction(message, onConfirm, type = 'danger') {
    OFFLINE DETECTION
 ══════════════════════════════════════ */
 function _initOfflineDetector() {
-  const banner = () => {
-    let b = document.getElementById('offlineBanner');
-    if (!b) {
-      b = document.createElement('div');
-      b.id = 'offlineBanner';
-      b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#f59e0b;color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:700;display:none';
-      b.innerHTML = '⚠️ You are offline — changes will not sync until reconnected';
-      document.body.prepend(b);
-    }
-    return b;
-  };
-  window.addEventListener('offline', () => { banner().style.display = 'block'; });
-  window.addEventListener('online',  () => { banner().style.display = 'none'; showToast('success','Back Online','Connection restored'); });
+  const banner=()=>{let b=document.getElementById('offlineBanner');if(!b){b=document.createElement('div');b.id='offlineBanner';b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:#f59e0b;color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:700;display:none';b.innerHTML='⚠️ You are offline — changes will not sync until reconnected';document.body.prepend(b);}return b;};
+  window.addEventListener('offline',()=>{banner().style.display='block';});
+  window.addEventListener('online',()=>{banner().style.display='none';showToast('success','Back Online','Connection restored');});
 }
+function genId(prefix='') { return prefix+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase(); }
 
 /* ══════════════════════════════════════
-   GENERIC ID GENERATOR
+   DEPARTMENT & DESIGNATION MASTER
 ══════════════════════════════════════ */
-function genId(prefix = '') {
-  return prefix + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 5).toUpperCase();
-}
-
-/* ══════════════════════════════════════
-   DEPARTMENT & DESIGNATION MASTER DATA
-══════════════════════════════════════ */
-const DEPARTMENTS = [
-  'ACCOUNTS','ADMIN','DESIGN','DISPATCH','EMBROIDERY','ERP',
-  'HR','MENDING','ONLINE','PRODUCTION','PURCHASE','QC',
-  'SALES','STITCHING','STORE','VALUE ADDITION',
-];
-
+const DEPARTMENTS = ['ACCOUNTS','ADMIN','DESIGN','DISPATCH','EMBROIDERY','ERP','HR','MENDING','ONLINE','PRODUCTION','PURCHASE','QC','SALES','STITCHING','STORE','VALUE ADDITION'];
 const DESIGNATIONS = {
-  'ACCOUNTS'       : ['SR. ACCOUNTANT','JR. ACCOUNTANT','ACCOUNTS EXECUTIVE'],
-  'ADMIN'          : ['HR MANAGER','HR EXECUTIVE','ERP EXECUTIVE','SECURITY','HOUSE KEEPER'],
-  'DESIGN'         : ['DESIGN HEAD','FASHION DESIGNER','SR. COM. DESIGNER','JR. COM. DESIGNER','SKETCHER','MOCKING EXECUTIVE'],
-  'DISPATCH'       : ['SUPERVISOR','PACKER','HELPER','DRIVER','BILLING EXECUTIVE'],
-  'EMBROIDERY'     : ['SUPERVISOR','OPERATOR','PATTA STITCHING','HELPER'],
-  'ERP'            : ['ERP EXECUTIVE','ERP MANAGER'],
-  'HR'             : ['HR MANAGER','HR EXECUTIVE','RECRUITER'],
-  'MENDING'        : ['SUPERVISOR','CHECKER','ALTER EXECUTIVE','MENDOR','FOLDING CHECKER'],
-  'ONLINE'         : ['ONLINE HOD','GRAPHICS DESIGNER','SOCIAL MEDIA EXECUTIVE','D2C EXECUTIVE','ECOMMERCE EXECUTIVE','VIDEO EDITOR'],
-  'PRODUCTION'     : ['PRODUCTION EXECUTIVE','PRODUCTION MANAGER','STITCHING MASTER'],
-  'PURCHASE'       : ['HOD','PURCHASE EXECUTIVE','FABRIC CHECKER'],
-  'QC'             : ['SUPERVISOR','CHECKER','HELPER'],
-  'SALES'          : ['SALES MANAGER','SALES COORDINATOR','SALES EXECUTIVE','SHOP ASSISTANT','COLLECTION EXECUTIVE'],
-  'STITCHING'      : ['SUPERVISOR','SR. MASTER','STITCHING EXECUTIVE','HELPER'],
-  'STORE'          : ['STORE MANAGER','STORE KEEPER','HELPER'],
-  'VALUE ADDITION' : ['HOD','HELPER','ALTER EXECUTIVE','FOLDING HELPER'],
+  'ACCOUNTS':['SR. ACCOUNTANT','JR. ACCOUNTANT','ACCOUNTS EXECUTIVE'],
+  'ADMIN':['HR MANAGER','HR EXECUTIVE','ERP EXECUTIVE','SECURITY','HOUSE KEEPER'],
+  'DESIGN':['DESIGN HEAD','FASHION DESIGNER','SR. COM. DESIGNER','JR. COM. DESIGNER','SKETCHER','MOCKING EXECUTIVE'],
+  'DISPATCH':['SUPERVISOR','PACKER','HELPER','DRIVER','BILLING EXECUTIVE'],
+  'EMBROIDERY':['SUPERVISOR','OPERATOR','PATTA STITCHING','HELPER'],
+  'ERP':['ERP EXECUTIVE','ERP MANAGER'],
+  'HR':['HR MANAGER','HR EXECUTIVE','RECRUITER'],
+  'MENDING':['SUPERVISOR','CHECKER','ALTER EXECUTIVE','MENDOR','FOLDING CHECKER'],
+  'ONLINE':['ONLINE HOD','GRAPHICS DESIGNER','SOCIAL MEDIA EXECUTIVE','D2C EXECUTIVE','ECOMMERCE EXECUTIVE','VIDEO EDITOR'],
+  'PRODUCTION':['PRODUCTION EXECUTIVE','PRODUCTION MANAGER','STITCHING MASTER'],
+  'PURCHASE':['HOD','PURCHASE EXECUTIVE','FABRIC CHECKER'],
+  'QC':['SUPERVISOR','CHECKER','HELPER'],
+  'SALES':['SALES MANAGER','SALES COORDINATOR','SALES EXECUTIVE','SHOP ASSISTANT','COLLECTION EXECUTIVE'],
+  'STITCHING':['SUPERVISOR','SR. MASTER','STITCHING EXECUTIVE','HELPER'],
+  'STORE':['STORE MANAGER','STORE KEEPER','HELPER'],
+  'VALUE ADDITION':['HOD','HELPER','ALTER EXECUTIVE','FOLDING HELPER'],
 };
-
-/* Departments that get 31-day bonus by default */
-const BONUS_DEPARTMENTS = ['STITCHING', 'EMBROIDERY'];
-
-/* ── Populate dropdowns ── */
-function populateDeptDropdown(selectId, includeAll = false) {
-  const sel = document.getElementById(selectId);
-  if (!sel) return;
-  const first = includeAll ? '<option value="">All Departments</option>' : '<option value="">Select Department...</option>';
-  sel.innerHTML = first + DEPARTMENTS.map(d => `<option value="${d}">${d}</option>`).join('');
+const BONUS_DEPARTMENTS = ['STITCHING','EMBROIDERY'];
+function populateDeptDropdown(selectId, includeAll=false) {
+  const sel=document.getElementById(selectId);if(!sel)return;
+  const first=includeAll?'<option value="">All Departments</option>':'<option value="">Select Department...</option>';
+  sel.innerHTML=first+DEPARTMENTS.map(d=>`<option value="${d}">${d}</option>`).join('');
 }
 function populateDesigDropdown(dept, selectId) {
-  const sel = document.getElementById(selectId);
-  if (!sel) return;
-  const list = DESIGNATIONS[dept] || [];
-  sel.innerHTML = '<option value="">Select Designation...</option>' +
-    list.map(d => `<option value="${d}">${d}</option>`).join('');
+  const sel=document.getElementById(selectId);if(!sel)return;
+  const list=DESIGNATIONS[dept]||[];
+  sel.innerHTML='<option value="">Select Designation...</option>'+list.map(d=>`<option value="${d}">${d}</option>`).join('');
 }
-
-/* ── Shift label helper ── */
 function getShiftLabel(shiftStr) {
-  if (!shiftStr) return '—';
-  const parts = shiftStr.split('-');
-  if (parts.length !== 2) return shiftStr;
-  return `${formatTime(parts[0].trim())} – ${formatTime(parts[1].trim())}`;
+  if(!shiftStr)return'—';const parts=shiftStr.split('-');if(parts.length!==2)return shiftStr;
+  return`${formatTime(parts[0].trim())} – ${formatTime(parts[1].trim())}`;
 }
-
-/* ── Department code from ECode (e.g. PF/HR/001 → HR) ── */
-const DEPT_CODE_MAP = {
-  ac:'ACCOUNTS', adm:'ADMIN', des:'DESIGN', dsp:'DISPATCH',
-  emb:'EMBROIDERY', hr:'HR', mnd:'MENDING', on:'ONLINE',
-  pp:'PRODUCTION', pur:'PURCHASE', qc:'QC', sal:'SALES',
-  stc:'STITCHING', str:'STORE', va:'VALUE ADDITION', erp:'ERP',
-};
+const DEPT_CODE_MAP = {ac:'ACCOUNTS',adm:'ADMIN',des:'DESIGN',dsp:'DISPATCH',emb:'EMBROIDERY',hr:'HR',mnd:'MENDING',on:'ONLINE',pp:'PRODUCTION',pur:'PURCHASE',qc:'QC',sal:'SALES',stc:'STITCHING',str:'STORE',va:'VALUE ADDITION',erp:'ERP'};
 function getDeptFromECode(ecode) {
-  if (!ecode) return '—';
-  const parts = ecode.split('/');
-  return parts.length >= 2 ? (DEPT_CODE_MAP[parts[1].toLowerCase()] || parts[1].toUpperCase()) : '—';
+  if(!ecode)return'—';const parts=ecode.split('/');
+  return parts.length>=2?(DEPT_CODE_MAP[parts[1].toLowerCase()]||parts[1].toUpperCase()):'—';
 }
 
 /* ══════════════════════════════════════
-   SHEET STATUS STYLE (injected once)
+   STYLES INJECTION
 ══════════════════════════════════════ */
 (function injectStyles() {
-  if (document.getElementById('_appStyles')) return;
-  const s = document.createElement('style');
-  s.id    = '_appStyles';
-  s.textContent = `
-    .sheet-status { font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:6px; transition:all .3s; }
-    .sheet-status.success { background:#d1fae5; color:#065f46; }
-    .sheet-status.loading { background:#dbeafe; color:#1e40af; }
-    .sheet-status.error   { background:#fee2e2; color:#b91c1c; }
-    .sheet-status.warning { background:#fef3c7; color:#92400e; }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-    @keyframes spin    { to{transform:rotate(360deg)} }
-    .spin { animation: spin .9s linear infinite; display:inline-block; }
-  `;
+  if(document.getElementById('_appStyles'))return;
+  const s=document.createElement('style');s.id='_appStyles';
+  s.textContent=`.sheet-status{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:6px;transition:all .3s;}.sheet-status.success{background:#d1fae5;color:#065f46;}.sheet-status.loading{background:#dbeafe;color:#1e40af;}.sheet-status.error{background:#fee2e2;color:#b91c1c;}.sheet-status.warning{background:#fef3c7;color:#92400e;}@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}@keyframes spin{to{transform:rotate(360deg)}}.spin{animation:spin .9s linear infinite;display:inline-block;}.skeleton{background:linear-gradient(90deg,#f4f4f5 25%,#e4e4e7 50%,#f4f4f5 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}`;
   document.head.appendChild(s);
 })();
 
 /* ══════════════════════════════════════
-   APP INIT  (runs on every page load)
+   APP INIT
 ══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
   _initOfflineDetector();
   updateClock();
   setInterval(updateClock, 1000);
-
-  // Set today's date on inputs with .today-date
-  const today = todayStr();
-  document.querySelectorAll('input.today-date[type="date"]').forEach(el => { el.value = today; });
-
-  // Populate sidebar with user info
+  const today=todayStr();
+  document.querySelectorAll('input.today-date[type="date"]').forEach(el=>{el.value=today;});
   loadProfileInSidebar();
-
-  // Setup maintenance modal close
-  document.getElementById('maintenanceModal')?.addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('show');
-  });
+  document.getElementById('maintenanceModal')?.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
 });
 
-/* ── Internal sleep helper ── */
-function _sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-console.log('%c🦋 House of Panchhi HR v2.0 loaded', 'color:#be185d;font-weight:800;font-size:14px;');
+function _sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+console.log('%c🦋 House of Panchhi HR v2.0 loaded','color:#be185d;font-weight:800;font-size:14px;');
