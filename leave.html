@@ -37,32 +37,43 @@
     <img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img" onerror="this.style.display='none'">
     <div class="brand-text"><h2>House of Panchhi</h2><span>HR Software v2.0</span></div>
   </div>
-  <div class="sidebar-nav">
+    <div class="sidebar-nav">
     <div class="nav-section">
       <div class="nav-section-title">Main</div>
       <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-th-large"></i> Dashboard</div>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">HR & Payroll</div>
-      <div class="nav-link" onclick="window.location='employees.html'"><i class="fas fa-users"></i> Employee Directory</div>
-      <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-calendar-check"></i> Attendance</div>
-      <div class="nav-link" onclick="window.location='gatepass.html'"><i class="fas fa-door-open"></i> Gate Pass</div>
-      <div class="nav-link active"><i class="fas fa-calendar-days"></i> Leave Management</div>
-      <div class="nav-link" onclick="window.location='salary.html'"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
+      <div class="nav-section-title">HR &amp; Payroll</div>
+      <div class="nav-link " onclick="window.location='employees.html'"><i class="fas fa-users"></i> Employee Directory</div>
+      <div class="nav-link " onclick="window.location='attendance.html'"><i class="fas fa-calendar-check"></i> Attendance</div>
+      <div class="nav-link " onclick="window.location='gatepass.html'"><i class="fas fa-door-open"></i> Gate Pass</div>
+      <div class="nav-link active" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i> Leave Management</div>
+      <div class="nav-link " onclick="window.location='salary.html'"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
     </div>
     <div class="nav-section">
       <div class="nav-section-title">Operations</div>
-      <div class="nav-link" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
+      <div class="nav-link " onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store &amp; Inventory</div>
+      <div class="nav-link" onclick="showMaintenance('Expenses','Coming soon!')"><i class="fas fa-receipt"></i> Expenses <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Visitor Log','Coming soon!')"><i class="fas fa-person-walking-arrow-right"></i> Visitor Log <span class="nav-soon">Soon</span></div>
     </div>
     <div class="nav-section">
-      <div class="nav-section-title">Analytics & Teams</div>
-      <div class="nav-link" onclick="window.location='analytics.html'"><i class="fas fa-chart-line"></i> Analytics</div>
-      <div class="nav-link" onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div>
+      <div class="nav-section-title">Analytics &amp; Teams</div>
+      <div class="nav-link " onclick="window.location='analytics.html'"><i class="fas fa-chart-line"></i> Analytics</div>
+      <div class="nav-link " onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div>
+      <div class="nav-link" onclick="showMaintenance('Tasks','Coming soon!')"><i class="fas fa-list-check"></i> Tasks <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Announcements','Coming soon!')"><i class="fas fa-bullhorn"></i> Announcements <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Reports</div>
+      <div class="nav-link" onclick="showMaintenance('MIS Reports','Coming soon!')"><i class="fas fa-file-chart-column"></i> MIS Reports <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Performance','Coming soon!')"><i class="fas fa-star"></i> Performance <span class="nav-soon">Soon</span></div>
     </div>
     <div class="nav-section">
       <div class="nav-section-title">System</div>
       <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-sliders"></i> Settings</div>
+      <div class="nav-link" onclick="Auth.logout()" style="color:var(--danger)"><i class="fas fa-right-from-bracket"></i> Logout</div>
     </div>
+  </div>
   </div>
   <div class="sidebar-footer">
     <div class="user-avatar" id="sidebarAvatar">AT</div>
@@ -710,5 +721,30 @@ function exportHistory() {
     ['appliedOn','ecode','empName','department','type','from','to','days','reason','status']);
 }
 </script>
+
+<!-- MAINTENANCE MODAL -->
+<div class="maintenance-overlay" id="maintenanceModal">
+  <div class="maintenance-box">
+    <div style="font-size:52px;margin-bottom:16px">🚧</div>
+    <div class="maintenance-badge"><i class="fas fa-hard-hat"></i>&nbsp;Under Construction</div>
+    <h3 style="font-size:20px;font-weight:800;color:var(--gray-900);margin-bottom:8px" id="maintenanceTitle">Coming Soon</h3>
+    <p style="font-size:13.5px;color:var(--gray-500);line-height:1.7;margin-bottom:24px" id="maintenanceDesc">This module is being developed. Coming soon!</p>
+    <button class="btn btn-primary" onclick="document.getElementById('maintenanceModal').classList.remove('show')" style="margin:0 auto">
+      <i class="fas fa-thumbs-up"></i>&nbsp;Got it!
+    </button>
+  </div>
+</div>
+<!-- MAINTENANCE MODAL -->
+<div class="maintenance-overlay" id="maintenanceModal">
+  <div class="maintenance-box">
+    <div style="font-size:52px;margin-bottom:16px">🚧</div>
+    <div class="maintenance-badge"><i class="fas fa-hard-hat"></i>&nbsp;Under Construction</div>
+    <h3 style="font-size:20px;font-weight:800;color:var(--gray-900);margin-bottom:8px" id="maintenanceTitle">Coming Soon</h3>
+    <p style="font-size:13.5px;color:var(--gray-500);line-height:1.7;margin-bottom:24px" id="maintenanceDesc">This module is being developed. Coming soon!</p>
+    <button class="btn btn-primary" onclick="document.getElementById('maintenanceModal').classList.remove('show')" style="margin:0 auto">
+      <i class="fas fa-thumbs-up"></i>&nbsp;Got it!
+    </button>
+  </div>
+</div>
 </body>
 </html>
