@@ -407,6 +407,9 @@ async function doLogin() {
     initDashboard();
     // Show role-based UI
     applyRoleAccess();
+    // Direct navigate if URL has page param
+    const _p = new URLSearchParams(window.location.search).get('page');
+    if (_p) setTimeout(() => { navigateTo(_p); window.history.replaceState({}, '', window.location.pathname); }, 300);
   } else {
     errEl.textContent = result.error || 'Login failed. Check username and password.';
     errEl.style.display = 'block';
@@ -427,6 +430,18 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProfileInSidebar();
     initDashboard();
     applyRoleAccess();
+
+    // Check URL param — direct navigate to settings/profile
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetPage = urlParams.get('page');
+    if (targetPage) {
+      // Small delay to let dashboard init first
+      setTimeout(() => {
+        navigateTo(targetPage);
+        // Clean URL without reload
+        window.history.replaceState({}, '', window.location.pathname);
+      }, 300);
+    }
   }
 });
 
